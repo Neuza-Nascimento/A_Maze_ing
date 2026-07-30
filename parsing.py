@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ValidationError, model_validator
-from typing import Self
+from typing_extensions import Self
 
 
 class MazeConfig(BaseModel):
@@ -11,17 +11,19 @@ class MazeConfig(BaseModel):
     perfect: bool
 
     @model_validator(mode="after")
-    def validate(self) -> Self:
-        if not self.entry.x < self.width and self.entry.y < self.height:
-            raise ValueError("")
-        if not exit.exit.x < self.width and self.exit.y < self.height:
-            raise ValueError("")
+    def validate_coordinates(self) -> Self:
+        if not (self.entry[0] < self.width and self.entry[1] < self.height):
+            raise ValueError(f"ENTRY {self.entry} is outside the maze bounds "
+                             f"(width={self.width}, height={self.height})")
+        if not (self.exit[0] < self.width and self.exit[1] < self.height):
+            raise ValueError(f"EXIT {self.exit} is outside the maze bounds "
+                             f"(width={self.width}, height={self.height})")
         if self.entry == self.exit:
-            raise ValueError("")
+            raise ValueError("ENTRY and EXIT cannot have the same coordinates")
         return self
 
 
-def extract_data(file: str) -> tuple[bool, dict | str]:
+def extract_data(file: str) -> dict:
     lines = file.splitlines()
     data = {}
     for line in lines:
@@ -31,15 +33,15 @@ def extract_data(file: str) -> tuple[bool, dict | str]:
         else:
             item = line.split("=")
             if len(item) != 2:
-                raise ValueError("Missing arguments")
+                raise ValueError("Usage: key=value")
             data[item[0].strip()] = item[1].strip()
-    return (True, data)
+    return data
 
 
 def split_xy(coord: str) -> tuple[int, int]:
     data = coord.split(",", maxsplit=1)
     if len(data) != 2:
-        raise ValueError("Error")
+        raise ValueError("Usage: key=value1,value2")
     return int(data[0]), int(data[1])
 
 
@@ -50,24 +52,24 @@ def parsing(filestr: str) -> MazeConfig:
         with open(filestr) as file:
             data = extract_data(file.read())
     except FileNotFoundError as e:
-        raise FileNotFoundError(f"Error opening or reading file: {e}")
+        raise FileNotFoundError(e)
     except ValueError as e:
-        raise ValueError(f"Variable not valid: {e}")
+        raise ValueError(e)
+
     for key in keys:
-        if key not in data[1]:
+        if key not in data:
             raise ValueError(f"Missing variable {key}")
-    print(split_xy(data[1]["ENTRY"]))
+
     try:
         config = MazeConfig(
-                width=data[1]["WIDTH"],
-                height=data[1]["HEIGHT"],
-                entry_x=split_xy(data[1]["ENTRY"]),
-                entry_y=split_xy(data[1]["EXIT"]),
-                output_file=data[1]["OUTPUT_FILE"],
-                perfect=data[1]["PERFECT"],
+                width=data["WIDTH"],
+                height=data["HEIGHT"],
+                entry=split_xy(data["ENTRY"]),
+                exit=split_xy(data["EXIT"]),
+                output_file=data["OUTPUT_FILE"],
+                perfect=data["PERFECT"],
         )
         return config
     except ValidationError as e:
-        raise ValueError(e)
-        # for error in e.errors():
-        #     raise ValueError(error["msg"]) from e
+        for error in e.errors():
+            raise ValueError(error["msg"])

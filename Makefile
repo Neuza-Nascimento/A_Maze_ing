@@ -6,7 +6,7 @@
 #    By: nedo-nas <nedo-nas@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/07/27 11:10:01 by nedo-nas          #+#    #+#              #
-#    Updated: 2026/07/27 11:19:07 by nedo-nas         ###   ########.fr        #
+#    Updated: 2026/07/30 15:21:43 by nedo-nas         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,6 @@ install:
 
 run:
 	python3 a_maze_ing.py config.txt
-
 
 debug:
 	python3 -m pdb a_maze_ing.py config.txt
