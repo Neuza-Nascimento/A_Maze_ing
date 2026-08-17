@@ -1,0 +1,118 @@
+[project]
+name = "mazegen"
+version = "0.1.0"
+description = "A reusable maze generation library with multiple algorithms"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    {name = "Neuza Nascimento", email = "nedo-nas@student.42porto.com"},
+	{name = "Rodrigo Pereira", email = "rodrpere@student.42porto.com"}
+
+]
+
+keywords = ["maze", "generator", "algorithm", "pathfinding"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+dependencies = [
+    "flake8>=7.3.0",
+    "flake8-pyproject>=1.2.4",
+    "mypy>=2.3.1",
+    "pydantic>=2.13.4",
+    "pytest>=9.1.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "mypy", "flake8", "flake8-pyproject"]
+
+[project.scripts]
+mazegen = "mazegen:main"
+
+[build-system]
+requires = ["uv_build >= 0.12.5, <0.13.0"]
+build-backend = "uv_build"
+
+[tool.mypy]
+python_version = "3.14"
+warn_return_any = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+strict = true
+exclude = [
+    ".venv/",
+    ".git/",
+    "build/",
+    "dist/",
+    "__pycache__/",
+    ".ruff_cache"
+]
+
+[tool.flake8]
+max-line-length = 79
+extend-exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".mypy_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+]
+count = true
+statistics = true
+show-source = true
+
+# Rodrigo
+[tool.ruff]
+indent-width = 4
+line-length = 79
+respect-gitignore = true
+target-version = "py314"
+extend-exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".mypy_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+]
+show-fixes = true
+output-format = "grouped"
+
+[tool.ruff.lint]
+preview = true
+select=["ALL"]
+extend-select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "N",
+    "B",
+    "C90",
+    "C4",
+]
+
+ignore = [
+    "T20",
+    "RUF100",
+    "RUF201",
+    "D",
+    "DOC",
+    "CPY",
+    "COM812",
+]
+
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10

@@ -1,31 +1,31 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: nedo-nas <nedo-nas@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2026/07/27 11:10:01 by nedo-nas          #+#    #+#              #
-#    Updated: 2026/07/30 15:21:43 by nedo-nas         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+PYTHON = python3.14
+UV = uv
+REQS = requirements.txt
+CONFIG = config.txt
+MAIN = a_maze_ing.py
 
-install: 
-	pip install -r requirements.txt
+all: install
+
+install:
+	$(UV) sync
 
 run:
-	python3 a_maze_ing.py config.txt
+	$(PYTHON) $(MAIN) $(CONFIG)
 
 debug:
-	python3 -m pdb a_maze_ing.py config.txt
-
-clean:
-	rm -rf __pycache__ .mypy_cache */__pycache__ dist build *.egg-info
+	$(PYTHON) -m pdb $(MAIN) $(CONFIG)
 
 lint:
-	flake8 .
-	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	flake8 . --exclude=lib
+	mypy . --exclude lib --warn-return-any --warn-unused-ignores \
+	--ignore-missing-imports --disallow-untyped-defs \
+	--check-untyped-defs
 
 lint-strict:
-	flake8 .
-	mypy . --strict
+	flake8 . --exclude=lib
+	mypy . --exclude=lib --strict
+
+clean:
+	rm -rf __pycache__ .mypy_cache .ruff_cache
+
+.PHONY: all install run debug lint clean
