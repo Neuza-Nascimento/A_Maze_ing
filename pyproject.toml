@@ -109,6 +109,7 @@ ignore = [
     "DOC",
     "CPY",
     "COM812",
+    "S311"
 ]
 
 fixable = ["ALL"]

@@ -26,6 +26,13 @@ DIR_LETTER: dict[MagicValues, str] = {
     MagicValues.WEST:  "W"
 }
 
+OPPOSITE: dict[int, int] = {
+    MagicValues.NORTH.value: MagicValues.SOUTH.value,
+    MagicValues.SOUTH.value: MagicValues.NORTH.value,
+    MagicValues.EAST.value: MagicValues.WEST.value,
+    MagicValues.WEST.value: MagicValues.EAST.value
+}
+
 
 MAX_32: int = 52
 MIN_32: int = 18
