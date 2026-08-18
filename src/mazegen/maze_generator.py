@@ -99,10 +99,10 @@ class MazeGenerator:
                 continue
 
             key, nnx, nny = random.choice(neighbors)
-            self.grid[cx][cy] &= ~key.value
+            self.grid[cy][cx] &= ~key.value
             self.grid[nny][nnx] &= ~OPPOSITE[key.value]
-            stack.append((nny, nnx))
-            visited.add((nny, nny))
+            stack.append((nnx, nny))
+            visited.add((nnx, nny))
         return visited
 
     def _perfect_dfs(self) -> None:
@@ -145,10 +145,10 @@ class MazeGenerator:
 
     def output_res(self, path: list[str]) -> None:
         output = Path(self.config.output_file)
-        with output.open(mode="a", encoding="utf-8") as f:
+        with output.open(mode="w", encoding="utf-8") as f:
             for row in self.grid[1:-1]:
                 for num in row[1:-1]:
-                    f.write(hex(num).upper())
+                    f.write(hex(num)[-1].upper())
                 f.write("\n")
             f.write("\n")
             f.write(f"{self.config.entry[0]}, {self.config.entry[1]}\n")
@@ -161,6 +161,7 @@ class MazeGenerator:
     def generate(self) -> bool:
         if self.config.perfect:
             self._perfect_dfs()
+            return True
         self._imperfect_dfs()
         solved_path: list[str] = self._bfs()
         if not solved_path:
