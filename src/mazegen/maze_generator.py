@@ -38,19 +38,19 @@ class MazeGenerator:
     def _centered_origin(
         self, pattern: list[tuple[int, int]]
     ) -> tuple[int, int]:
-        xs = [dx for dx, _ in pattern]
-        ys = [dy for _, dy in pattern]
+        xs: list[int] = [dx for dx, _ in pattern]
+        ys: list[int] = [dy for _, dy in pattern]
 
-        pattern_width = max(xs) - min(xs) + 1
-        pattern_height = max(ys) - min(ys) + 1
+        pattern_width: int = max(xs) - min(xs) + 1
+        pattern_height: int = max(ys) - min(ys) + 1
 
-        center_x = (self.width - pattern_width) // 2 - min(xs)
-        center_y = (self.height - pattern_height) // 2 - min(ys)
+        center_x: int = (self.width - pattern_width) // 2 - min(xs)
+        center_y: int = (self.height - pattern_height) // 2 - min(ys)
 
         return center_x, center_y
 
     def _42_pattern(self) -> bool:
-        open_row = [MagicValues.OPEN.value] * (self.width - 2)
+        open_row: list[int] = [MagicValues.OPEN.value] * (self.width - 2)
         for row in self.grid[1 : self.height - 1]:
             row[1 : self.width - 1] = open_row
 
@@ -65,7 +65,7 @@ class MazeGenerator:
                 self.blocked.add((x, y))
             return True
 
-        size_patterns = [
+        size_patterns: list[tuple[int, int, list[tuple[int, int]]]] = [
             (MIN_8, MAX_8, P42_8),
             (MIN_16, MAX_16, P42_16),
             (MIN_32, MAX_32, P42_32),
