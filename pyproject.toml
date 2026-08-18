@@ -51,7 +51,8 @@ exclude = [
     "build/",
     "dist/",
     "__pycache__/",
-    ".ruff_cache"
+    ".ruff_cache/",
+    "lib/"
 ]
 
 [tool.flake8]
@@ -64,6 +65,7 @@ extend-exclude = [
     ".ruff_cache",
     "build",
     "dist",
+    "lib"
 ]
 count = true
 statistics = true
@@ -83,6 +85,7 @@ extend-exclude = [
     ".ruff_cache",
     "build",
     "dist",
+    "lib"
 ]
 show-fixes = true
 output-format = "grouped"

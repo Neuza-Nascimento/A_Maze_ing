@@ -1,5 +1,6 @@
+from typing import Self
+
 from pydantic import BaseModel, Field, ValidationError, model_validator
-from typing_extensions import Self
 
 
 class MazeConfig(BaseModel):
