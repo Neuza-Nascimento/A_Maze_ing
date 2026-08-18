@@ -81,6 +81,47 @@ class MazeGenerator:
 
     def _carve_maze(self) -> None: ...
 
+    def _kruskal(self) -> None:
+        daddy: dict = {}
+        walls: list[tuple[tuple[int, int], tuple[int, int], any]] = []
+
+        for line in range(self.height):
+            for col in range(self.width):
+                if (line, col) not in self.blocked:
+                    daddy[(line, col)] = line, col
+
+                if (self.width > (col + 1) and
+                        (line, col + 1) not in self.blocked):
+                    walls.append(((line, col), (line, col + 1),
+                                  DIRECTIONS[MagicValues.WEST]))
+
+                if (self.height > (line + 1) and
+                        (line + 1, col) not in self.blocked):
+                    walls.append(((line, col), (line + 1, col),
+                                  DIRECTIONS[MagicValues.SOUTH]))
+
+        def find(cell: tuple[int, int]) -> tuple[int, int]:
+            if daddy[cell] != cell:
+                daddy[cell] = find(daddy[cell])
+            return daddy[cell]
+
+        def union(cell1: tuple[int, int], cell2: tuple[int, int]) -> bool:
+            source1 = find(cell1)
+            source2 = find(cell2)
+
+            if source1 != source2:
+                daddy[source1] = source2
+                return True
+            return False
+
+        random.shuffle(walls)
+        open_walls: list = []
+        for wall in walls:
+            cell1, cell2, direction = wall
+            if union(cell1, cell2):
+                self.grid[cell1[0]][cell1[1]] &= ~DIRECTIONS[direction]
+                open_walls.append(wall)
+
     def _solution_path(self) -> list[str]:
         from collections import deque
 
@@ -116,9 +157,3 @@ class MazeGenerator:
                 queque.append((nx, ny), path + DIR_LETTER[direction])
 
         return []
-
-    def output_res(self) -> None:
-        with open("output.txt", "w"):
-            for i in self.grid:
-                for j in self.grid:
-                    ...
