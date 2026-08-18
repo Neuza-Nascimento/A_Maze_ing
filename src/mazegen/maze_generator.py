@@ -1,6 +1,21 @@
 import random
 from typing import TYPE_CHECKING
 
+from .magic_values import (
+    MAX_8,
+    MAX_16,
+    MAX_32,
+    MIN_8,
+    MIN_16,
+    MIN_32,
+    P42_8,
+    P42_16,
+    P42_32,
+    DIRECTIONS,
+    DIR_LETTER,
+    MagicValues,
+)
+
 if TYPE_CHECKING:
     from mazegen import MazeConfig
 
@@ -10,58 +25,62 @@ class MazeGenerator:
         self.config: MazeConfig = config
         self.width: int = config.width
         self.height: int = config.height
-        self.center: tuple[int, int] = (
-            int(self.width / 2),
-            int(self.height / 2),
-        )
         self.grid: list[list[int]] = []
-
+        self.blocked: set[tuple[int, int]] = set()
         random.seed(config.seed)
         self._create_grid()
 
     def _create_grid(self) -> None:
-        ex, ey = self.config.entry
-        sx, sy = self.config.exit
-        cx, cy = self.center
-        for i in range(self.height):
-            row: list[int] = []
-            for j in range(self.width):
-                if i == ey and j == ex:
-                    row.append(0b0010)
-                    continue
-                if i == sy and j == sx:
-                    row.append(0b0010)
-                    continue
-                if cy in {i, j} or cx in {j, i}:
-                    row.append(0b0001)
-                    continue
-                row.append(0b0000)
+        n: int = MagicValues.CLOSED.value
+        for _ in range(self.height):
+            row: list[int] = [n for _ in range(self.width)]
             self.grid.append(row)
+        self._42_pattern()
+                    
+    def _centered_origin(self, pattern: list[tuple[int, int]]) -> tuple[int, int]:
+        xs = [dx for dx, _ in pattern]
+        ys = [dy for _, dy in pattern]
 
-    def _42_pattern(self) -> None: ...
+        pattern_width = max(xs) - min(xs) + 1
+        pattern_height = max(ys) - min(ys) + 1
+
+        center_x = (self.width - pattern_width) // 2 - min(xs)
+        center_y = (self.height - pattern_height) // 2 - min(ys)
+
+        return center_x, center_y
+
+    def _42_pattern(self) -> bool:
+        open_row = [MagicValues.OPEN.value] * (self.width - 2)
+        for row in self.grid[1:self.height - 1]:
+            row[1:self.width - 1] = open_row
+
+        def draw(pattern: list[tuple[int, int]]) -> bool:
+            center_x, center_y = self._centered_origin(pattern)
+            for dx, dy in pattern:
+                x, y = center_x + dx, center_y + dy
+                if not (0 <= x < self.width and 0 <= y < self.height):
+                    print("Warning: Maze too small for 42 pattern!")
+                    return False
+                self.grid[y][x] = MagicValues.PATTERN.value
+                self.blocked.add((x, y))
+            return True
+
+        size_patterns = [
+            (MIN_8, MAX_8, P42_8),
+            (MIN_16, MAX_16, P42_16),
+            (MIN_32, MAX_32, P42_32),
+        ]
+
+        for lo, hi, pattern in size_patterns:
+            if lo <= self.height <= hi or lo <= self.width <= hi:
+                return draw(pattern)
+
+        return True
+
+    def _carve_maze(self) -> None: ...
 
     def _solution_path(self) -> list[str]:
         from collections import deque
-        from enum import Enum
-
-        NORTH = 0b0001
-        EAST = 0b0010
-        SOUTH = 0b0100
-        WEST = 0b1000
-
-        DIRECTIONS: dict[int, tuple[int, int]] = {
-            NORTH: (0, -1),
-            EAST: (1, 0),
-            SOUTH: (0, 1),
-            WEST: (-1, 0)
-        }
-
-        DIR_LETTER: dict[int, str] = {
-            NORTH: "N",
-            EAST:  "E",
-            SOUTH: "S",
-            WEST:  "W"
-        }
 
         queque: deque[tuple[tuple[int, int], list[any]]] = deque(
             [(self.config.entry, [])])
@@ -99,5 +118,4 @@ class MazeGenerator:
     def output_res(self) -> None:
         with open("output.txt", "w"):
             for i in self.grid:
-                for j in self.grid:
-                    
+                for j in self.grid: ...

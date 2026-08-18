@@ -64,7 +64,6 @@ def main() -> None:
         maze = MazeGenerator(config)
         for row in maze.grid:
             sys.stdout.write(f"{row}\n")
-        sys.stdout.write(f"\n{config.model_dump_json(indent=2)}\n")
     except ValidationError as e:
         error = e.errors()[0]["msg"]
         msg: str = error.removeprefix("Value error, ")
