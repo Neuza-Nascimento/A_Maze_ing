@@ -11,6 +11,22 @@ class MagicValues(Enum):
     PATTERN = 42
 
 
+DIRECTIONS: dict[MagicValues, tuple[int, int]] = {
+    MagicValues.NORTH: (0, -1),
+    MagicValues.EAST: (1, 0),
+    MagicValues.SOUTH: (0, 1),
+    MagicValues.WEST: (-1, 0)
+}
+
+
+DIR_LETTER: dict[MagicValues, str] = {
+    MagicValues.NORTH: "N",
+    MagicValues.EAST:  "E",
+    MagicValues.SOUTH: "S",
+    MagicValues.WEST:  "W"
+}
+
+
 MAX_32: int = 52
 MIN_32: int = 18
 P42_32: list[tuple[int, int]] = [

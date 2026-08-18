@@ -11,6 +11,8 @@ from .magic_values import (
     P42_8,
     P42_16,
     P42_32,
+    DIRECTIONS,
+    DIR_LETTER,
     MagicValues,
 )
 
@@ -51,8 +53,8 @@ class MazeGenerator:
 
     def _42_pattern(self) -> bool:
         open_row: list[int] = [MagicValues.OPEN.value] * (self.width - 2)
-        for row in self.grid[1 : self.height - 1]:
-            row[1 : self.width - 1] = open_row
+        for row in self.grid[1: self.height - 1]:
+            row[1: self.width - 1] = open_row
 
         def draw(pattern: list[tuple[int, int]]) -> bool:
             center_x, center_y = self._centered_origin(pattern)
@@ -78,3 +80,45 @@ class MazeGenerator:
         return True
 
     def _carve_maze(self) -> None: ...
+
+    def _solution_path(self) -> list[str]:
+        from collections import deque
+
+        queque: deque[tuple[tuple[int, int], list[any]]] = deque(
+            [(self.config.entry, [])])
+
+        walls_visited: set[tuple[int, int]] = {self.config.entry}
+
+        while queque:
+            position, path = queque.popleft()
+            px, py = position
+
+            if position == self.config.exit:
+                return path
+
+            for direction, (dx, dy) in DIRECTIONS.items():
+                nx = dx + px
+                ny = dy + py
+
+                if nx < 0 or nx >= self.width:
+                    continue
+
+                if ny < 0 or ny >= self.height:
+                    continue
+
+                if (nx, ny) in walls_visited:
+                    continue
+
+                if self.grid[px][py] & direction:
+                    continue
+
+                walls_visited.add((nx, ny))
+                queque.append((nx, ny), path + DIR_LETTER[direction])
+
+        return []
+
+    def output_res(self) -> None:
+        with open("output.txt", "w"):
+            for i in self.grid:
+                for j in self.grid:
+                    ...
