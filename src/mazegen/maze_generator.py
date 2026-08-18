@@ -35,7 +35,9 @@ class MazeGenerator:
             self.grid.append(row)
         self._42_pattern()
 
-    def _centered_origin(self, pattern: list[tuple[int, int]]) -> tuple[int, int]:
+    def _centered_origin(
+        self, pattern: list[tuple[int, int]]
+    ) -> tuple[int, int]:
         xs = [dx for dx, _ in pattern]
         ys = [dy for _, dy in pattern]
 
@@ -49,8 +51,8 @@ class MazeGenerator:
 
     def _42_pattern(self) -> bool:
         open_row = [MagicValues.OPEN.value] * (self.width - 2)
-        for row in self.grid[1:self.height - 1]:
-            row[1:self.width - 1] = open_row
+        for row in self.grid[1 : self.height - 1]:
+            row[1 : self.width - 1] = open_row
 
         def draw(pattern: list[tuple[int, int]]) -> bool:
             center_x, center_y = self._centered_origin(pattern)
