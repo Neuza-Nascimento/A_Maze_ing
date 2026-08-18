@@ -1,8 +1,9 @@
-PYTHON = python3.14
+PYTHON = python
 UV = uv
-REQS = requirements.txt
 CONFIG = config.txt
 MAIN = a_maze_ing.py
+SUBDIR = src/mazegen
+CACHE = __pycache__ .mypy_cache .ruff_cache \
 
 all: install
 
@@ -10,7 +11,7 @@ install:
 	$(UV) sync
 
 run:
-	$(PYTHON) $(MAIN) $(CONFIG)
+	$(UV) run $(MAIN) $(CONFIG)
 
 debug:
 	$(PYTHON) -m pdb $(MAIN) $(CONFIG)
@@ -26,6 +27,10 @@ lint-strict:
 	mypy . --exclude=lib --strict
 
 clean:
-	rm -rf __pycache__ .mypy_cache .ruff_cache
+	rm -rf $(CACHE)
+	rm -rf $(addprefix $(SUBDIR)/,$(CACHE))
 
-.PHONY: all install run debug lint clean
+fclean: clean
+	rm -rf .venv
+
+.PHONY: all install run debug lint lint-strict clean
