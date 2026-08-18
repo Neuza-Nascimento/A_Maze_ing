@@ -1,7 +1,10 @@
 import random
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from .magic_values import (
+    DIR_LETTER,
+    DIRECTIONS,
     MAX_8,
     MAX_16,
     MAX_32,
@@ -11,13 +14,12 @@ from .magic_values import (
     P42_8,
     P42_16,
     P42_32,
-    DIRECTIONS,
-    DIR_LETTER,
     MagicValues,
 )
 
 if TYPE_CHECKING:
     from mazegen import MazeConfig
+from collections import deque
 
 
 class MazeGenerator:
@@ -76,15 +78,15 @@ class MazeGenerator:
         for lo, hi, pattern in size_patterns:
             if lo <= self.height <= hi or lo <= self.width <= hi:
                 return draw(pattern)
+            print("Warning: Maze too small for 42 pattern!")
+            return False
 
         return True
 
-    def _carve_maze(self) -> None: ...
+    def _dfs_maker(self) -> None: ...
 
-    def _solution_path(self) -> list[str]:
-        from collections import deque
-
-        queque: deque[tuple[tuple[int, int], list[any]]] = deque(
+    def _bfs(self) -> list[str]:
+        queque: deque[tuple[tuple[int, int], list[str]]] = deque(
             [(self.config.entry, [])])
 
         walls_visited: set[tuple[int, int]] = {self.config.entry}
@@ -109,16 +111,22 @@ class MazeGenerator:
                 if (nx, ny) in walls_visited:
                     continue
 
-                if self.grid[px][py] & direction:
+                if self.grid[px][py] & direction.value:
                     continue
 
                 walls_visited.add((nx, ny))
-                queque.append((nx, ny), path + DIR_LETTER[direction])
+                queque.append(((nx, ny), [*path, DIR_LETTER[direction]]))
 
         return []
 
-    def output_res(self) -> None:
-        with open("output.txt", "w"):
-            for i in self.grid:
-                for j in self.grid:
-                    ...
+    def output_res(self, path: str) -> None:
+        output = Path(self.config.output_file)
+        with output.open(mode="a", encoding="utf-8") as f:
+            for row in self.grid[1:-1]:
+                for num in row[1:-1]:
+                    f.write(hex(num).upper())
+                f.write("\n")
+            f.write("\n")
+            f.write(f"{self.config.entry[0]}, {self.config.entry[1]}\n")
+            f.write(f"{self.config.exit[0]}, {self.config.exit[1]}\n")
+            f.write(f"\n{path}\n")
