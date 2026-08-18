@@ -32,7 +32,6 @@ class MazeGenerator:
         self.blocked: set[tuple[int, int]] = set()
         random.seed(config.seed)
         self._create_grid()
-        self._kruskal()
 
     def _create_grid(self) -> None:
         n: int = MagicValues.CLOSED.value
@@ -63,7 +62,7 @@ class MazeGenerator:
                 if not (0 <= x < self.width and 0 <= y < self.height):
                     print("Warning: Maze too small for 42 pattern!")
                     return False
-                self.grid[y][x] = MagicValues.PATTERN.value
+                self.grid[y][x] = MagicValues.CLOSED.value
                 self.blocked.add((x, y))
             return True
 
@@ -113,19 +112,19 @@ class MazeGenerator:
         daddy: dict = {}
         walls: list[tuple[tuple[int, int], tuple[int, int], MagicValues]] = []
 
-        for line in range(self.height):
-            for col in range(self.width):
-                if (line, col) in self.blocked:
+        for y in range(self.height):
+            for x in range(self.width):
+                if (x, y) in self.blocked:
                     continue
-                daddy[(line, col)] = line, col
-                if (self.width > (col + 1) and
-                        (line, col + 1) not in self.blocked):
-                    walls.append(((line, col), (line, col + 1),
+                daddy[(x, y)] = x, y
+                if (self.width > (x + 1) and
+                        (x + 1, y) not in self.blocked):
+                    walls.append(((x, y), (x + 1, y),
                                   MagicValues.EAST))
 
-                if (self.height > (line + 1) and
-                        (line + 1, col) not in self.blocked):
-                    walls.append(((line, col), (line + 1, col),
+                if (self.height > (y + 1) and
+                        (x, y + 1) not in self.blocked):
+                    walls.append(((x, y), (x, y + 1),
                                   MagicValues.SOUTH))
 
         def find(cell: tuple[int, int]) -> tuple[int, int]:
@@ -143,13 +142,11 @@ class MazeGenerator:
             return False
 
         random.shuffle(walls)
-        open_walls: list = []
         for wall in walls:
             cell1, cell2, direct = wall
             if union(cell1, cell2):
-                self.grid[cell1[0]][cell1[1]] &= ~direct.value
-                self.grid[cell2[0]][cell2[1]] &= ~OPPOSITE[direct.value]
-                open_walls.append(wall)
+                self.grid[cell1[1]][cell1[0]] &= ~direct.value
+                self.grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
 
         return
 
@@ -205,10 +202,11 @@ class MazeGenerator:
 
     def generate(self) -> bool:
         if self.config.perfect:
-            self._perfect_dfs()
-            return True
-        self._imperfect_dfs()
-        solved_path: list[str] = self._bfs()
+            self._kruskal()
+            solved_path: list[str] = self._bfs()
+        else:
+            self._imperfect_dfs()
+            solved_path: list[str] = self._bfs()
         if not solved_path:
             print("Unable to find a solution!\n")
             return False
