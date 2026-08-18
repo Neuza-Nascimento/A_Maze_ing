@@ -70,7 +70,7 @@ class MazeGenerator:
         ]
 
         for lo, hi, pattern in size_patterns:
-            if lo <= self.height <= hi and lo <= self.width <= hi:
+            if lo <= self.height <= hi or lo <= self.width <= hi:
                 return draw(pattern)
 
         return True
