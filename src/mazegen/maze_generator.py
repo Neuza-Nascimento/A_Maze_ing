@@ -80,7 +80,7 @@ class MazeGenerator:
                 return False
         return True
 
-    def _imperfect_dfs(self) -> set[tuple[int, int]]:
+    def _d(self) -> set[tuple[int, int]]:
         visited: set[tuple[int, int]] = {self.config.entry}
         stack: list[tuple[int, int]] = [self.config.entry]
         while stack:
@@ -105,9 +105,6 @@ class MazeGenerator:
             visited.add((nnx, nny))
         return visited
 
-    def _perfect_dfs(self) -> None:
-        visited_walls = self._imperfect_dfs()
-
     def _kruskal(self) -> None:
         daddy: dict = {}
         walls: list[tuple[tuple[int, int], tuple[int, int], MagicValues]] = []
@@ -116,16 +113,12 @@ class MazeGenerator:
             for x in range(self.width):
                 if (x, y) in self.blocked:
                     continue
-                daddy[(x, y)] = x, y
-                if (self.width > (x + 1) and
-                        (x + 1, y) not in self.blocked):
-                    walls.append(((x, y), (x + 1, y),
-                                  MagicValues.EAST))
+                daddy[x, y] = x, y
+                if self.width > (x + 1) and (x + 1, y) not in self.blocked:
+                    walls.append(((x, y), (x + 1, y), MagicValues.EAST))
 
-                if (self.height > (y + 1) and
-                        (x, y + 1) not in self.blocked):
-                    walls.append(((x, y), (x, y + 1),
-                                  MagicValues.SOUTH))
+                if self.height > (y + 1) and (x, y + 1) not in self.blocked:
+                    walls.append(((x, y), (x, y + 1), MagicValues.SOUTH))
 
         def find(cell: tuple[int, int]) -> tuple[int, int]:
             if daddy[cell] != cell:
@@ -147,8 +140,6 @@ class MazeGenerator:
             if union(cell1, cell2):
                 self.grid[cell1[1]][cell1[0]] &= ~direct.value
                 self.grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
-
-        return
 
     def _bfs(self) -> list[str]:
         queque: deque[tuple[tuple[int, int], list[str]]] = deque(
@@ -205,7 +196,7 @@ class MazeGenerator:
             self._kruskal()
             solved_path: list[str] = self._bfs()
         else:
-            self._imperfect_dfs()
+            self._d()
             solved_path: list[str] = self._bfs()
         if not solved_path:
             print("Unable to find a solution!\n")

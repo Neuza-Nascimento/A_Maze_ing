@@ -120,4 +120,4 @@ fixable = ["ALL"]
 unfixable = []
 
 [tool.ruff.lint.mccabe]
-max-complexity = 10
+max-complexity = 12

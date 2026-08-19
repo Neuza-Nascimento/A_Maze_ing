@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+import dotenv
+
 from mazegen import MazeConfig, magic_values
 
 
@@ -93,12 +95,14 @@ def check_seed(seed: str) -> int:
 
 
 def check_algo(algo: str) -> str:
-    if algo == " ":
-        return "bfs"
+    if not algo:
+        return "dfs"
     return algo
 
 
 def check_display(display: str) -> str:
+    if not display:
+        return "mlx"
     return display
 
 
@@ -124,14 +128,16 @@ def parser(filename: str) -> MazeConfig:
     raw: dict[str, str] = {}
 
     contents = file.read_text(encoding="utf-8")
-    for content in contents.split("\n"):
-        if content.startswith("#"):
+    for line in contents.split("\n"):
+        if line.startswith(("#", "\n")):
             continue
-        if "=" not in content:
+        if not line.strip():
+            continue
+        if "=" not in line:
             serr: str = "Invalid Syntax"
             raise SyntaxError(serr)
 
-        key, value = content.split("=", 1)
+        key, value = line.split("=", 1)
         key = key.strip().upper()
         value = value.strip()
         raw[key] = value
@@ -145,6 +151,24 @@ def parser(filename: str) -> MazeConfig:
         try:
             f = checker[k]
             config[k.lower()] = f(v)
+        except ValueError as e:
+            raise ValueError(str(e)) from e
+    return MazeConfig(**config)
+
+
+def parsing(filename: str) -> MazeConfig:
+    path: str | None = dotenv.find_dotenv(filename)
+    raw: dict[str, str | None] = dotenv.dotenv_values(path)
+
+    for key in magic_values.KEYS:
+        if key not in raw:
+            missing: str = f"Missing: {key}"
+            raise ValueError(missing)
+    config: dict[str, Any] = {}
+    for k, v in raw.items():
+        try:
+            f = checker[k]
+            config[k.lower()] = f(str(v))
         except ValueError as e:
             raise ValueError(str(e)) from e
     return MazeConfig(**config)
