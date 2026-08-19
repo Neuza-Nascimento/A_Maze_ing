@@ -1,75 +1,150 @@
-from pydantic import BaseModel, Field, ValidationError, model_validator
-from typing_extensions import Self
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+from mazegen import MazeConfig, magic_values
 
 
-class MazeConfig(BaseModel):
-    width: int = Field(gt=0, le=10000)
-    height: int = Field(gt=0, le=10000)
-    entry: tuple[int, int]
-    exit: tuple[int, int]
-    output_file: str = Field(min_length=1)
-    perfect: bool
-
-    @model_validator(mode="after")
-    def validate_coordinates(self) -> Self:
-        if not (self.entry[0] < self.width and self.entry[1] < self.height):
-            raise ValueError(f"ENTRY {self.entry} is outside the maze bounds "
-                             f"(width={self.width}, height={self.height})")
-        if not (self.exit[0] < self.width and self.exit[1] < self.height):
-            raise ValueError(f"EXIT {self.exit} is outside the maze bounds "
-                             f"(width={self.width}, height={self.height})")
-        if self.entry == self.exit:
-            raise ValueError("ENTRY and EXIT cannot have the same coordinates")
-        return self
-
-
-def extract_data(file: str) -> dict:
-    lines = file.splitlines()
-    data = {}
-    for line in lines:
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        else:
-            item = line.split("=")
-            if len(item) != 2:
-                raise ValueError("Usage: key=value")
-            data[item[0].strip()] = item[1].strip()
-    return data
-
-
-def split_xy(coord: str) -> tuple[int, int]:
-    data = coord.split(",", maxsplit=1)
-    if len(data) != 2:
-        raise ValueError("Usage: key=value1,value2")
-    return int(data[0]), int(data[1])
-
-
-def parsing(filestr: str) -> MazeConfig:
-    keys = ["WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"]
-
+def check_width(width: str) -> int:
     try:
-        with open(filestr) as file:
-            data = extract_data(file.read())
-    except FileNotFoundError as e:
-        raise FileNotFoundError(e)
+        w = int(width)
     except ValueError as e:
-        raise ValueError(e)
+        err = f"WIDTH must be an integer, got: {width}"
+        raise ValueError(err) from e
+    if w <= 0:
+        zero: str = "WIDTH must be greater than 0"
+        raise ValueError(zero)
+    return w
 
-    for key in keys:
-        if key not in data:
-            raise ValueError(f"Missing variable {key}")
 
+def check_height(height: str) -> int:
     try:
-        config = MazeConfig(
-                width=data["WIDTH"],
-                height=data["HEIGHT"],
-                entry=split_xy(data["ENTRY"]),
-                exit=split_xy(data["EXIT"]),
-                output_file=data["OUTPUT_FILE"],
-                perfect=data["PERFECT"],
-        )
-        return config
-    except ValidationError as e:
-        for error in e.errors():
-            raise ValueError(error["msg"])
+        h = int(height)
+    except ValueError as e:
+        err = f"HEIGHT must be an integer, got: {height}"
+        raise ValueError(err) from e
+    if h <= 0:
+        zero: str = "HEIGHT must be greater than 0"
+        raise ValueError(zero)
+    return h
+
+
+def check_entry(entry_point: str) -> tuple[int, int]:
+    err: str
+    if "," not in entry_point:
+        err = "Entry must be in format x,y"
+        raise ValueError(err)
+    x, y = entry_point.split(",")
+    try:
+        entry: tuple[int, int] = (int(x), int(y))
+    except ValueError as e:
+        err = f"ENTRY must be an integer, got: {entry_point}"
+        raise ValueError(err) from e
+    if entry[0] <= 0 or entry[1] <= 0:
+        out_of_bounds: str = f"Entry ({x},{y}) out of bounds"
+        raise ValueError(out_of_bounds)
+    return entry
+
+
+def check_exit(exit_point: str) -> tuple[int, int]:
+    err: str
+    if "," not in exit_point:
+        err = "EXIT must be in format x,y"
+        raise ValueError(err)
+    x, y = exit_point.split(",")
+    try:
+        out: tuple[int, int] = (int(x), int(y))
+    except ValueError as e:
+        err = f"EXIT must be an integer, got: {exit_point}"
+        raise ValueError(err) from e
+    if out[0] <= 0 or out[1] <= 0:
+        out_of_bounds: str = f"EXIT ({x},{y}) out of bounds"
+        raise ValueError(out_of_bounds)
+    return out
+
+
+def check_file(file: str) -> str:
+    if Path(file).exists():
+        return file
+    return file
+
+
+def check_perfect(perfect: str) -> bool:
+    if perfect in {"True", "TRUE"}:
+        return True
+    if perfect in {"False", "FALSE"}:
+        return False
+    staterr: str = f"PERFECT must be True or False, got: {perfect}"
+    raise ValueError(staterr)
+
+
+def check_seed(seed: str) -> int:
+    try:
+        sed = int(seed)
+    except ValueError as e:
+        err: str = f"SEED must be an integer, got: {seed}"
+        raise ValueError(err) from e
+    if sed <= 0:
+        zero: str = "SEED must be greater than 0"
+        raise ValueError(zero)
+    return sed
+
+
+def check_algo(algo: str) -> str:
+    if algo == " ":
+        return "bfs"
+    return algo
+
+
+def check_display(display: str) -> str:
+    return display
+
+
+checker: dict[str, Callable[[str], Any]] = {
+    "WIDTH": check_width,
+    "HEIGHT": check_height,
+    "ENTRY": check_entry,
+    "EXIT": check_exit,
+    "OUTPUT_FILE": check_file,
+    "PERFECT": check_perfect,
+    "SEED": check_seed,
+    "ALGORITHM": check_algo,
+    "DISPLAY": check_display,
+}
+
+
+def parser(filename: str) -> MazeConfig:
+    file = Path(filename)
+    if not file.exists():
+        fnf: str = "File Not Found"
+        raise FileNotFoundError(fnf)
+
+    raw: dict[str, str] = {}
+
+    contents = file.read_text(encoding="utf-8")
+    for content in contents.split("\n"):
+        if content.startswith("#"):
+            continue
+        if "=" not in content:
+            serr: str = "Invalid Syntax"
+            raise SyntaxError(serr)
+
+        key, value = content.split("=", 1)
+        key = key.strip().upper()
+        value = value.strip()
+        raw[key] = value
+    for key in magic_values.KEYS:
+        if key not in raw:
+            missing: str = f"Missing: {key}"
+            raise ValueError(missing)
+
+    config: dict[str, Any] = {}
+    for k, v in raw.items():
+        try:
+            f = checker[k]
+            config[k.lower()] = f(v)
+        except ValueError as e:
+            raise ValueError(str(e)) from e
+    return MazeConfig(**config)
