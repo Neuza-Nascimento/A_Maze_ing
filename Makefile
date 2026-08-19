@@ -3,7 +3,7 @@ UV = uv
 CONFIG = config.txt
 MAIN = a_maze_ing.py
 SUBDIR = src/mazegen
-CACHE = __pycache__ .mypy_cache .ruff_cache \
+CACHE = __pycache__ .mypy_cache .ruff_cache maze.txt \
 
 all: install
 
