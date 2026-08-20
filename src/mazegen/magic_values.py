@@ -2,13 +2,12 @@ from enum import Enum
 
 
 class MagicValues(Enum):
+    OPEN = 0b0000
     NORTH = 0b0001
     EAST = 0b0010
     SOUTH = 0b0100
     WEST = 0b1000
-    OPEN = 0b1010
     CLOSED = 0b1111
-    PATTERN = 42
 
 
 MAX_ARGS: int = 2

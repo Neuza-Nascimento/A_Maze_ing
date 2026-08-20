@@ -12,8 +12,8 @@ class MazeConfig(BaseModel):
     output_file: str = Field(default="maze.txt")
     perfect: bool
     seed: int | None = Field(default=secrets.randbits(32))
-    algorithm: str | None = Field(default="bfs")
-    display: str | None = Field(default="mlx")
+    algorithm: str | None = Field(default="DFS")
+    display: str | None = Field(default="MLX")
 
     @model_validator(mode="after")
     def validate_config(self) -> Self:

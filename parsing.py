@@ -4,8 +4,6 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-import dotenv
-
 from mazegen import MazeConfig, magic_values
 
 
@@ -36,17 +34,14 @@ def check_height(height: str) -> int:
 def check_entry(entry_point: str) -> tuple[int, int]:
     err: str
     if "," not in entry_point:
-        err = "Entry must be in format x,y"
+        err = "ENTRY must be in format x,y"
         raise ValueError(err)
     x, y = entry_point.split(",")
     try:
         entry: tuple[int, int] = (int(x), int(y))
     except ValueError as e:
-        err = f"ENTRY must be an integer, got: {entry_point}"
-        raise ValueError(err) from e
-    if entry[0] <= 0 or entry[1] <= 0:
-        out_of_bounds: str = f"Entry ({x},{y}) out of bounds"
-        raise ValueError(out_of_bounds)
+        entryerr = f"ENTRY must be an integer, got: {entry_point}"
+        raise ValueError(entryerr) from e
     return entry
 
 
@@ -59,11 +54,8 @@ def check_exit(exit_point: str) -> tuple[int, int]:
     try:
         out: tuple[int, int] = (int(x), int(y))
     except ValueError as e:
-        err = f"EXIT must be an integer, got: {exit_point}"
-        raise ValueError(err) from e
-    if out[0] <= 0 or out[1] <= 0:
-        out_of_bounds: str = f"EXIT ({x},{y}) out of bounds"
-        raise ValueError(out_of_bounds)
+        exiterr = f"EXIT must be an integer, got: {exit_point}"
+        raise ValueError(exiterr) from e
     return out
 
 
@@ -86,8 +78,8 @@ def check_seed(seed: str) -> int:
     try:
         sed = int(seed)
     except ValueError as e:
-        err: str = f"SEED must be an integer, got: {seed}"
-        raise ValueError(err) from e
+        seederr: str = f"SEED must be an integer, got: {seed}"
+        raise ValueError(seederr) from e
     if sed <= 0:
         zero: str = "SEED must be greater than 0"
         raise ValueError(zero)
@@ -95,15 +87,25 @@ def check_seed(seed: str) -> int:
 
 
 def check_algo(algo: str) -> str:
-    if not algo:
-        return "dfs"
-    return algo
+    for c in algo:
+        if c.isspace() or c.isnumeric() or c.isdecimal() or c in {"-", "+"}:
+            algo_err: str = f"Invalid ALGORITHM, got: {algo}"
+            raise ValueError(algo_err)
+    if algo in {"DFS", "BFS", "KRUSKAL"}:
+        return algo
+    msg: str = f"ALGORITHM option not supported ({algo})"
+    raise ValueError(msg)
 
 
 def check_display(display: str) -> str:
-    if not display:
-        return "mlx"
-    return display
+    for c in display:
+        if c.isspace() or c.isnumeric() or c.isdecimal() or c in {"-", "+"}:
+            display_error: str = f"Invalid DISPLAY, got: {display}"
+            raise ValueError(display_error)
+    if display in {"MLX", "ASCII"}:
+        return display
+    msg: str = f"DISPLAY option not supported ({display})"
+    raise ValueError(msg)
 
 
 checker: dict[str, Callable[[str], Any]] = {
@@ -151,24 +153,6 @@ def parser(filename: str) -> MazeConfig:
         try:
             f = checker[k]
             config[k.lower()] = f(v)
-        except ValueError as e:
-            raise ValueError(str(e)) from e
-    return MazeConfig(**config)
-
-
-def parsing(filename: str) -> MazeConfig:
-    path: str | None = dotenv.find_dotenv(filename)
-    raw: dict[str, str | None] = dotenv.dotenv_values(path)
-
-    for key in magic_values.KEYS:
-        if key not in raw:
-            missing: str = f"Missing: {key}"
-            raise ValueError(missing)
-    config: dict[str, Any] = {}
-    for k, v in raw.items():
-        try:
-            f = checker[k]
-            config[k.lower()] = f(str(v))
         except ValueError as e:
             raise ValueError(str(e)) from e
     return MazeConfig(**config)
