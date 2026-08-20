@@ -91,7 +91,7 @@ def check_algo(algo: str) -> str:
         if c.isspace() or c.isnumeric() or c.isdecimal() or c in {"-", "+"}:
             algo_err: str = f"Invalid ALGORITHM, got: {algo}"
             raise ValueError(algo_err)
-    if algo in {"DFS", "BFS", "KRUSKAL"}:
+    if algo in {"DFS", "PRIM", "KRUSKAL"}:
         return algo
     msg: str = f"ALGORITHM option not supported ({algo})"
     raise ValueError(msg)

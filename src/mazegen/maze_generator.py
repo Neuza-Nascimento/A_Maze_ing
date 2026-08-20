@@ -35,8 +35,13 @@ class MazeGenerator:
 
     def _create_grid(self) -> None:
         n: int = MagicValues.CLOSED.value
-        for _ in range(self._height):
-            row: list[int] = [n for _ in range(self._width)]
+        for y in range(self._height):
+            row: list[int] = []
+            for x in range(self._width):
+                if y in {0, self._height - 1} or x in {0, self._width - 1}:
+                    self._blocked.add((x, y))
+                    continue
+                row.append(n)
             self._grid.append(row)
         self._42_pattern()
 
@@ -80,7 +85,7 @@ class MazeGenerator:
                 return False
         return True
 
-    def _imperfect_maze(self) -> set[tuple[int, int]]:
+    def _dfs(self) -> None:
         visited: set[tuple[int, int]] = {self._config.entry}
         stack: list[tuple[int, int]] = [self._config.entry]
         while stack:
@@ -103,9 +108,8 @@ class MazeGenerator:
             self._grid[nny][nnx] &= ~OPPOSITE[key.value]
             stack.append((nnx, nny))
             visited.add((nnx, nny))
-        return visited
 
-    def _perfect_maze(self) -> None:
+    def _kruskal(self) -> None:
         daddy: dict[tuple[int, int], tuple[int, int]] = {}
         walls: list[tuple[tuple[int, int], tuple[int, int], MagicValues]] = []
 
@@ -141,6 +145,9 @@ class MazeGenerator:
                 self._grid[cell1[1]][cell1[0]] &= ~direct.value
                 self._grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
 
+    def _prim(self) -> list[str]:
+        return []
+
     def _bfs(self) -> list[str]:
         queque: deque[tuple[tuple[int, int], list[str]]] = deque(
             [(self._config.entry, [])]
@@ -175,12 +182,6 @@ class MazeGenerator:
                 queque.append(((nx, ny), [*path, DIR_LETTER[direction]]))
 
         return []
-
-    def _dfs(self):
-        return
-
-    def _kruskal(self):
-        return
 
     def _output_res(self, path: list[str]) -> None:
         output = Path(self._config.output_file)
