@@ -25,7 +25,6 @@ dependencies = [
     "mypy>=2.3.1",
     "pydantic>=2.13.4",
     "pytest>=9.1.1",
-    "python-dotenv>=1.2.3",
 ]
 
 [project.optional-dependencies]
@@ -121,3 +120,5 @@ unfixable = []
 
 [tool.ruff.lint.mccabe]
 max-complexity = 12
+
+[tool.ty]

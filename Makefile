@@ -1,5 +1,7 @@
 PYTHON = python
 UV = uv
+INSTALL = $(UV) sync
+RUN = $(UV) run
 CONFIG = config.txt
 MAIN = a_maze_ing.py
 SUBDIR = src/mazegen
@@ -8,23 +10,23 @@ CACHE = __pycache__ .mypy_cache .ruff_cache maze.txt \
 all: install
 
 install:
-	$(UV) sync
+	$(INSTALL)
 
 run:
-	$(UV) run $(MAIN) $(CONFIG)
+	$(RUN) $(MAIN) $(CONFIG)
 
 debug:
 	$(PYTHON) -m pdb $(MAIN) $(CONFIG)
 
 lint:
-	flake8 . --exclude=lib
-	mypy . --exclude lib --warn-return-any --warn-unused-ignores \
+	$(RUN) flake8 . --exclude=lib
+	$(RUN) mypy . --exclude lib --warn-return-any --warn-unused-ignores \
 	--ignore-missing-imports --disallow-untyped-defs \
 	--check-untyped-defs
 
 lint-strict:
-	flake8 . --exclude=lib
-	mypy . --exclude=lib --strict
+	$(RUN) flake8 . --exclude=lib
+	$(RUN) mypy . --exclude=lib --strict
 
 clean:
 	rm -rf $(CACHE)
