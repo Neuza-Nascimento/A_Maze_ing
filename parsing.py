@@ -60,8 +60,14 @@ def check_exit(exit_point: str) -> tuple[int, int]:
 
 
 def check_file(file: str) -> str:
-    if Path(file).exists():
-        return file
+    path = Path(file)
+    if path.is_dir():
+        isdir: str = f"OUTPUT_FILE must be a file, not a directory: {file}"
+        raise ValueError(isdir)
+    parent = path.parent
+    if not parent.exists():
+        noparent: str = f"OUTPUT_FILE directory does not exist: {parent}"
+        raise ValueError(noparent)
     return file
 
 
@@ -91,7 +97,7 @@ def check_algo(algo: str) -> str:
         if c.isspace() or c.isnumeric() or c.isdecimal() or c in {"-", "+"}:
             algo_err: str = f"Invalid ALGORITHM, got: {algo}"
             raise ValueError(algo_err)
-    if algo in {"DFS", "PRIM", "KRUSKAL"}:
+    if algo in {"dfs", "prim", "kruskal"}:
         return algo
     msg: str = f"ALGORITHM option not supported ({algo})"
     raise ValueError(msg)
@@ -102,7 +108,7 @@ def check_display(display: str) -> str:
         if c.isspace() or c.isnumeric() or c.isdecimal() or c in {"-", "+"}:
             display_error: str = f"Invalid DISPLAY, got: {display}"
             raise ValueError(display_error)
-    if display in {"MLX", "ASCII"}:
+    if display == "mlx":
         return display
     msg: str = f"DISPLAY option not supported ({display})"
     raise ValueError(msg)

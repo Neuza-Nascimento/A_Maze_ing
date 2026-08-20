@@ -144,8 +144,9 @@ class MazeGenerator:
                 self._grid[cell1[1]][cell1[0]] &= ~direct.value
                 self._grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
 
-    def _prim(self) -> list[str]:
-        return []
+    def _prim(self) -> None:
+        matrix = self._grid
+        del matrix
 
     def _bfs(self) -> list[str]:
         queque: deque[tuple[tuple[int, int], list[str]]] = deque(
@@ -203,8 +204,14 @@ class MazeGenerator:
             self._kruskal()
             solved_path = self._bfs()
         else:
-            self._dfs()
+            if self._config.algorithm == "dfs":
+                self._dfs()
+            if self._config.algorithm == "prim":
+                self._prim()
+            if self._config.algorithm == "kruskal":
+                self._kruskal()
             solved_path = self._bfs()
+
         if not solved_path:
             print("Unable to find a solution!\n")
             return False

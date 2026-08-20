@@ -11,7 +11,7 @@ class MazeConfig(BaseModel):
     exit: tuple[int, int] = Field(min_length=2, max_length=2)
     output_file: str = Field(default="maze.txt")
     perfect: bool
-    seed: int | None = Field(default=secrets.randbits(32))
+    seed: int | None = Field(default_factory=lambda: secrets.randbits(32))
     algorithm: str | None = Field(default="DFS")
     display: str | None = Field(default="MLX")
 
