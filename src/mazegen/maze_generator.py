@@ -80,7 +80,7 @@ class MazeGenerator:
                 return False
         return True
 
-    def _dfs(self) -> set[tuple[int, int]]:
+    def _imperfect_maze(self) -> set[tuple[int, int]]:
         visited: set[tuple[int, int]] = {self._config.entry}
         stack: list[tuple[int, int]] = [self._config.entry]
         while stack:
@@ -105,7 +105,7 @@ class MazeGenerator:
             visited.add((nnx, nny))
         return visited
 
-    def _kruskal(self) -> None:
+    def _perfect_maze(self) -> None:
         daddy: dict[tuple[int, int], tuple[int, int]] = {}
         walls: list[tuple[tuple[int, int], tuple[int, int], MagicValues]] = []
 
@@ -176,6 +176,12 @@ class MazeGenerator:
 
         return []
 
+    def _dfs(self):
+        return
+
+    def _kruskal(self):
+        return
+
     def _output_res(self, path: list[str]) -> None:
         output = Path(self._config.output_file)
         with output.open(mode="w", encoding="utf-8") as f:
@@ -194,10 +200,10 @@ class MazeGenerator:
     def generate(self) -> bool:
         solved_path: list[str]
         if self._config.perfect:
-            self._kruskal()
+            self._perfect_maze()
             solved_path = self._bfs()
         else:
-            self._dfs()
+            self._imperfect_maze()
             solved_path = self._bfs()
         if not solved_path:
             print("Unable to find a solution!\n")
