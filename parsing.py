@@ -34,17 +34,14 @@ def check_height(height: str) -> int:
 def check_entry(entry_point: str) -> tuple[int, int]:
     err: str
     if "," not in entry_point:
-        err = "Entry must be in format x,y"
+        err = "ENTRY must be in format x,y"
         raise ValueError(err)
     x, y = entry_point.split(",")
     try:
         entry: tuple[int, int] = (int(x), int(y))
     except ValueError as e:
-        err = f"ENTRY must be an integer, got: {entry_point}"
-        raise ValueError(err) from e
-    if entry[0] <= 0 or entry[1] <= 0:
-        out_of_bounds: str = f"Entry ({x},{y}) out of bounds"
-        raise ValueError(out_of_bounds)
+        entryerr = f"ENTRY must be an integer, got: {entry_point}"
+        raise ValueError(entryerr) from e
     return entry
 
 
@@ -57,17 +54,20 @@ def check_exit(exit_point: str) -> tuple[int, int]:
     try:
         out: tuple[int, int] = (int(x), int(y))
     except ValueError as e:
-        err = f"EXIT must be an integer, got: {exit_point}"
-        raise ValueError(err) from e
-    if out[0] <= 0 or out[1] <= 0:
-        out_of_bounds: str = f"EXIT ({x},{y}) out of bounds"
-        raise ValueError(out_of_bounds)
+        exiterr = f"EXIT must be an integer, got: {exit_point}"
+        raise ValueError(exiterr) from e
     return out
 
 
 def check_file(file: str) -> str:
-    if Path(file).exists():
-        return file
+    path = Path(file)
+    if path.is_dir():
+        isdir: str = f"OUTPUT_FILE must be a file, not a directory: {file}"
+        raise ValueError(isdir)
+    parent = path.parent
+    if not parent.exists():
+        noparent: str = f"OUTPUT_FILE directory does not exist: {parent}"
+        raise ValueError(noparent)
     return file
 
 
@@ -84,8 +84,8 @@ def check_seed(seed: str) -> int:
     try:
         sed = int(seed)
     except ValueError as e:
-        err: str = f"SEED must be an integer, got: {seed}"
-        raise ValueError(err) from e
+        seederr: str = f"SEED must be an integer, got: {seed}"
+        raise ValueError(seederr) from e
     if sed <= 0:
         zero: str = "SEED must be greater than 0"
         raise ValueError(zero)
@@ -93,13 +93,25 @@ def check_seed(seed: str) -> int:
 
 
 def check_algo(algo: str) -> str:
-    if algo == " ":
-        return "bfs"
-    return algo
+    for c in algo:
+        if c.isspace() or c.isnumeric() or c.isdecimal() or c in {"-", "+"}:
+            algo_err: str = f"Invalid ALGORITHM, got: {algo}"
+            raise ValueError(algo_err)
+    if algo in {"dfs", "prim", "kruskal"}:
+        return algo
+    msg: str = f"ALGORITHM option not supported ({algo})"
+    raise ValueError(msg)
 
 
 def check_display(display: str) -> str:
-    return display
+    for c in display:
+        if c.isspace() or c.isnumeric() or c.isdecimal() or c in {"-", "+"}:
+            display_error: str = f"Invalid DISPLAY, got: {display}"
+            raise ValueError(display_error)
+    if display == "mlx":
+        return display
+    msg: str = f"DISPLAY option not supported ({display})"
+    raise ValueError(msg)
 
 
 checker: dict[str, Callable[[str], Any]] = {
@@ -124,14 +136,16 @@ def parser(filename: str) -> MazeConfig:
     raw: dict[str, str] = {}
 
     contents = file.read_text(encoding="utf-8")
-    for content in contents.split("\n"):
-        if content.startswith("#"):
+    for line in contents.split("\n"):
+        if line.startswith(("#", "\n")):
             continue
-        if "=" not in content:
+        if not line.strip():
+            continue
+        if "=" not in line:
             serr: str = "Invalid Syntax"
             raise SyntaxError(serr)
 
-        key, value = content.split("=", 1)
+        key, value = line.split("=", 1)
         key = key.strip().upper()
         value = value.strip()
         raw[key] = value

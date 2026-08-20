@@ -25,19 +25,23 @@ from collections import deque
 
 class MazeGenerator:
     def __init__(self, config: MazeConfig) -> None:
-        self.config: MazeConfig = config
-        self.width: int = config.width
-        self.height: int = config.height
-        self.grid: list[list[int]] = []
-        self.blocked: set[tuple[int, int]] = set()
+        self._config: MazeConfig = config
+        self._width: int = config.width
+        self._height: int = config.height
+        self._grid: list[list[int]] = []
+        self._blocked: set[tuple[int, int]] = set()
         random.seed(config.seed)
         self._create_grid()
 
     def _create_grid(self) -> None:
         n: int = MagicValues.CLOSED.value
-        for _ in range(self.height):
-            row: list[int] = [n for _ in range(self.width)]
-            self.grid.append(row)
+        for y in range(self._height):
+            row: list[int] = []
+            for x in range(self._width):
+                if y in {0, self._height - 1} or x in {0, self._width - 1}:
+                    self._blocked.add((x, y))
+                row.append(n)
+            self._grid.append(row)
         self._42_pattern()
 
     def _centered_origin(
@@ -49,8 +53,8 @@ class MazeGenerator:
         pattern_width: int = max(xs) - min(xs) + 1
         pattern_height: int = max(ys) - min(ys) + 1
 
-        center_x: int = (self.width - pattern_width) // 2 - min(xs)
-        center_y: int = (self.height - pattern_height) // 2 - min(ys)
+        center_x: int = (self._width - pattern_width) // 2 - min(xs)
+        center_y: int = (self._height - pattern_height) // 2 - min(ys)
 
         return center_x, center_y
 
@@ -59,11 +63,11 @@ class MazeGenerator:
             center_x, center_y = self._centered_origin(pattern)
             for dx, dy in pattern:
                 x, y = center_x + dx, center_y + dy
-                if not (0 <= x < self.width and 0 <= y < self.height):
+                if not (0 <= x < self._width and 0 <= y < self._height):
                     print("Warning: Maze too small for 42 pattern!")
                     return False
-                self.grid[y][x] = MagicValues.CLOSED.value
-                self.blocked.add((x, y))
+                self._grid[y][x] = MagicValues.CLOSED.value
+                self._blocked.add((x, y))
             return True
 
         size_patterns: list[tuple[int, int, list[tuple[int, int]]]] = [
@@ -73,24 +77,24 @@ class MazeGenerator:
         ]
 
         for lo, hi, pattern in size_patterns:
-            if lo <= self.height <= hi or lo <= self.width <= hi:
+            if lo <= self._height <= hi or lo <= self._width <= hi:
                 return draw(pattern)
-            if (MIN_8 - 1) in {self.width, self.height}:
+            if (MIN_8 - 1) in {self._width, self._height}:
                 print("Warning, maze too small for the 42 Pattern!")
                 return False
         return True
 
-    def _imperfect_dfs(self) -> set[tuple[int, int]]:
-        visited: set[tuple[int, int]] = {self.config.entry}
-        stack: list[tuple[int, int]] = [self.config.entry]
+    def _dfs(self) -> None:
+        visited: set[tuple[int, int]] = {self._config.entry}
+        stack: list[tuple[int, int]] = [self._config.entry]
         while stack:
             cx, cy = stack[-1]
-            neighbors: list = []
+            neighbors: list[tuple[MagicValues, int, int]] = []
             for k, (dx, dy) in DIRECTIONS.items():
                 nx, ny = cx + dx, cy + dy
-                if (nx, ny) in self.blocked or (nx, ny) in visited:
+                if (nx, ny) in self._blocked or (nx, ny) in visited:
                     continue
-                if not (0 <= nx < self.width and 0 <= ny < self.height):
+                if not (0 <= nx < self._width and 0 <= ny < self._height):
                     continue
                 neighbors.append((k, nx, ny))
 
@@ -99,33 +103,25 @@ class MazeGenerator:
                 continue
 
             key, nnx, nny = random.choice(neighbors)
-            self.grid[cy][cx] &= ~key.value
-            self.grid[nny][nnx] &= ~OPPOSITE[key.value]
+            self._grid[cy][cx] &= ~key.value
+            self._grid[nny][nnx] &= ~OPPOSITE[key.value]
             stack.append((nnx, nny))
             visited.add((nnx, nny))
-        return visited
-
-    def _perfect_dfs(self) -> None:
-        visited_walls = self._imperfect_dfs()
 
     def _kruskal(self) -> None:
-        daddy: dict = {}
+        daddy: dict[tuple[int, int], tuple[int, int]] = {}
         walls: list[tuple[tuple[int, int], tuple[int, int], MagicValues]] = []
 
-        for y in range(self.height):
-            for x in range(self.width):
-                if (x, y) in self.blocked:
+        for y in range(self._height):
+            for x in range(self._width):
+                if (x, y) in self._blocked:
                     continue
-                daddy[(x, y)] = x, y
-                if (self.width > (x + 1) and
-                        (x + 1, y) not in self.blocked):
-                    walls.append(((x, y), (x + 1, y),
-                                  MagicValues.EAST))
+                daddy[x, y] = x, y
+                if self._width > (x + 1) and (x + 1, y) not in self._blocked:
+                    walls.append(((x, y), (x + 1, y), MagicValues.EAST))
 
-                if (self.height > (y + 1) and
-                        (x, y + 1) not in self.blocked):
-                    walls.append(((x, y), (x, y + 1),
-                                  MagicValues.SOUTH))
+                if self._height > (y + 1) and (x, y + 1) not in self._blocked:
+                    walls.append(((x, y), (x, y + 1), MagicValues.SOUTH))
 
         def find(cell: tuple[int, int]) -> tuple[int, int]:
             if daddy[cell] != cell:
@@ -145,39 +141,41 @@ class MazeGenerator:
         for wall in walls:
             cell1, cell2, direct = wall
             if union(cell1, cell2):
-                self.grid[cell1[1]][cell1[0]] &= ~direct.value
-                self.grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
+                self._grid[cell1[1]][cell1[0]] &= ~direct.value
+                self._grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
 
-        return
+    def _prim(self) -> None:
+        matrix = self._grid
+        del matrix
 
     def _bfs(self) -> list[str]:
         queque: deque[tuple[tuple[int, int], list[str]]] = deque(
-            [(self.config.entry, [])]
+            [(self._config.entry, [])]
         )
 
-        walls_visited: set[tuple[int, int]] = {self.config.entry}
+        walls_visited: set[tuple[int, int]] = {self._config.entry}
 
         while queque:
             position, path = queque.popleft()
             px, py = position
 
-            if position == self.config.exit:
+            if position == self._config.exit:
                 return path
 
             for direction, (dx, dy) in DIRECTIONS.items():
                 nx = dx + px
                 ny = dy + py
 
-                if nx < 0 or nx >= self.width:
+                if nx < 0 or nx >= self._width:
                     continue
 
-                if ny < 0 or ny >= self.height:
+                if ny < 0 or ny >= self._height:
                     continue
 
                 if (nx, ny) in walls_visited:
                     continue
 
-                if self.grid[py][px] & direction.value:
+                if self._grid[py][px] & direction.value:
                     continue
 
                 walls_visited.add((nx, ny))
@@ -185,30 +183,40 @@ class MazeGenerator:
 
         return []
 
-    def output_res(self, path: list[str]) -> None:
-        output = Path(self.config.output_file)
+    def _output_res(self, path: list[str]) -> None:
+        output = Path(self._config.output_file)
         with output.open(mode="w", encoding="utf-8") as f:
-            for row in self.grid[1:-1]:
+            for row in self._grid[1:-1]:
                 for num in row[1:-1]:
                     f.write(hex(num)[-1].upper())
                 f.write("\n")
             f.write("\n")
-            f.write(f"{self.config.entry[0]}, {self.config.entry[1]}\n")
-            f.write(f"{self.config.exit[0]}, {self.config.exit[1]}\n")
+            f.write(f"{self._config.entry[0]}, {self._config.entry[1]}\n")
+            f.write(f"{self._config.exit[0]}, {self._config.exit[1]}\n")
             f.write("\n")
             for s in path:
                 f.write(f"{s}")
             f.write("\n")
 
     def generate(self) -> bool:
-        if self.config.perfect:
+        solved_path: list[str]
+        if self._config.perfect:
             self._kruskal()
-            solved_path: list[str] = self._bfs()
+            solved_path = self._bfs()
         else:
-            self._imperfect_dfs()
-            solved_path: list[str] = self._bfs()
+            if self._config.algorithm == "dfs":
+                self._dfs()
+            if self._config.algorithm == "prim":
+                self._prim()
+            if self._config.algorithm == "kruskal":
+                self._kruskal()
+            solved_path = self._bfs()
+
         if not solved_path:
             print("Unable to find a solution!\n")
             return False
-        self.output_res(solved_path)
+        self._output_res(solved_path)
         return True
+
+    def get_grid(self) -> list[list[int]]:
+        return self._grid
