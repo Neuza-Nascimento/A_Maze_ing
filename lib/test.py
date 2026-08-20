@@ -66,9 +66,30 @@ path_cells = []       # Lista de células do caminho
 path_step = 0         # Quantas células já foram reveladas
 is_animating = False  # Se a animação está rodando
 
-# ============================================================
-# FUNÇÕES DE CORES ALEATÓRIAS
-# ============================================================
+def load_images():
+    global img_bg, img_entry, img_exit, img_walker
+
+    # Imagem de fundo (ex: textura de pedra, pergaminho, etc.)
+    img_bg_data, w, h = mlx.mlx_png_file_to_image(mlx_ptr, "aa1.png")
+    img_bg = {"img": img_bg_data, "w": w, "h": h}
+
+    # Ícone de entrada
+    # img_entry_data, w, h = mlx.mlx_png_file_to_image(mlx_ptr, "Instagram_logo_2022.svg")
+    # img_entry = {"img": img_entry_data, "w": w, "h": h}
+
+    # # Ícone de saída
+    # img_exit_data, w, h = mlx.mlx_png_file_to_image(mlx_ptr, "Instagram_logo_2022.svg")
+    # img_exit = {"img": img_exit_data, "w": w, "h": h}
+
+    # # Sprite do "andarilho" que percorre o caminho
+    # img_walker_data, w, h = mlx.mlx_png_file_to_image(mlx_ptr, "Instagram_logo_2022.svg")
+    # img_walker = {"img": img_walker_data, "w": w, "h": h}
+
+def full_redraw(maze_height):
+    mlx.mlx_clear_window(mlx_ptr, win_ptr)
+    draw_maze(mlx, mlx_ptr, win_ptr, maze_width, window_height, cell_size, 0)
+    draw_menu(mlx, mlx_ptr, win_ptr, maze_width, maze_height)
+
 def random_color(min_r, max_r, min_g, max_g, min_b, max_b):
     """Gera uma cor RGB aleatória dentro dos intervalos especificados"""
     r = random.randint(min_r, max_r)
@@ -135,10 +156,11 @@ def draw_maze(mlx, mlx_ptr, win_ptr, maze_width, window_height, cell_size, show_
     bytes_per_pixel = 4
 
     # Preencher o fundo
-    for y in range(window_height):
-        for x in range(maze_width):
-            pos = y * size_line + x * bytes_per_pixel
-            data[pos:pos + 4] = current_colors["CELL_COLOR"].to_bytes(4, 'little')
+    # for y in range(window_height):
+    #     for x in range(maze_width):
+    #         pos = y * size_line + x * bytes_per_pixel
+    #         data[pos:pos + 4] = current_colors["CELL_COLOR"].to_bytes(4, 'little')
+    mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, img_bg["img"], 0, 0)
 
     # Desenhar o labirinto
     for row in range(len(tam)):
@@ -259,10 +281,10 @@ def animate_path(param):
     
     # Avançar uma célula
     path_step += 1
-    
+    mlx.mlx_clear_window(mlx_ptr, win_ptr)
     # Redesenhar com o novo passo
     draw_maze(mlx, mlx_ptr, win_ptr, maze_width, window_height, cell_size, path_step)
-    draw_menu(mlx, mlx_ptr, win_ptr, maze_width, maze_height)
+    # draw_menu(mlx, mlx_ptr, win_ptr, maze_width, maze_height)
 # ============================================================
 # FUNÇÃO PARA APLICAR NOVO TEMA DE CORES
 # ============================================================
@@ -292,6 +314,8 @@ def render() -> None:
 
     win_ptr = mlx.mlx_new_window(mlx_ptr, maze_width, window_height, "A-maze-ing")
 
+    load_images()
+
     # Desenhar labirinto inicial
     draw_maze(mlx, mlx_ptr, win_ptr, maze_width, window_height, cell_size, 0)
     draw_menu(mlx, mlx_ptr, win_ptr, maze_width, maze_height)
@@ -301,32 +325,27 @@ def render() -> None:
     # ============================================================
     def key_handler(keycode, param) -> None:
         global path_cells, path_step, is_animating, current_colors
-        
+
         print(f"Tecla {keycode}")
 
-        if keycode == 49:  # Tecla '1'
+        if keycode == 49:  # '1'
             is_animating = False
-            draw_maze(mlx, mlx_ptr, win_ptr, maze_width, window_height, cell_size, 0)
-            draw_menu(mlx, mlx_ptr, win_ptr, maze_width, maze_height)
-            
-        elif keycode == 50:  # Tecla '2'
+            full_redraw(maze_height)
+
+        elif keycode == 50:  # '2'
             print(" Mostrar caminho...")
             if is_animating:
                 return
-            
-            # Construir o caminho
             path_cells = build_path_cells(ENTRY, SOL)
             path_step = 0
             is_animating = True
-            # Mostrar estado inicial (sem caminho)
-            draw_maze(mlx, mlx_ptr, win_ptr, maze_width, window_height, cell_size, 0)
-            
-        elif keycode == 51:  # Tecla '3'
+            full_redraw(maze_height)
+
+        elif keycode == 51:  # '3'
             apply_new_theme()
             is_animating = False
-            draw_maze(mlx, mlx_ptr, win_ptr, maze_width, window_height, cell_size, 0)
-            draw_menu(mlx, mlx_ptr, win_ptr, maze_width, maze_height)
-            
+            full_redraw(maze_height)
+
         elif keycode == 65307:  # ESC
             mlx.mlx_loop_exit(mlx_ptr)
 
