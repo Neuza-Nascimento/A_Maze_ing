@@ -40,7 +40,6 @@ class MazeGenerator:
             for x in range(self._width):
                 if y in {0, self._height - 1} or x in {0, self._width - 1}:
                     self._blocked.add((x, y))
-                    continue
                 row.append(n)
             self._grid.append(row)
         self._42_pattern()
@@ -201,10 +200,10 @@ class MazeGenerator:
     def generate(self) -> bool:
         solved_path: list[str]
         if self._config.perfect:
-            self._perfect_maze()
+            self._kruskal()
             solved_path = self._bfs()
         else:
-            self._imperfect_maze()
+            self._dfs()
             solved_path = self._bfs()
         if not solved_path:
             print("Unable to find a solution!\n")
