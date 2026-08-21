@@ -4,7 +4,16 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-from mazegen import MazeConfig, magic_values
+from mazegen import MazeConfig
+
+KEYS: list[str] = [
+    "WIDTH",
+    "HEIGHT",
+    "ENTRY",
+    "EXIT",
+    "OUTPUT_FILE",
+    "PERFECT",
+]
 
 
 def check_width(width: str) -> int:
@@ -97,7 +106,7 @@ def check_algo(algo: str) -> str:
         if c.isspace() or c.isnumeric() or c.isdecimal() or c in {"-", "+"}:
             algo_err: str = f"Invalid ALGORITHM, got: {algo}"
             raise ValueError(algo_err)
-    if algo in {"dfs", "prim", "kruskal"}:
+    if algo in {"dfs", "kruskal", "prim"}:
         return algo
     msg: str = f"ALGORITHM option not supported ({algo})"
     raise ValueError(msg)
@@ -149,7 +158,7 @@ def parser(filename: str) -> MazeConfig:
         key = key.strip().upper()
         value = value.strip()
         raw[key] = value
-    for key in magic_values.KEYS:
+    for key in KEYS:
         if key not in raw:
             missing: str = f"Missing: {key}"
             raise ValueError(missing)

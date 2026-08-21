@@ -22,6 +22,7 @@ classifiers = [
 dependencies = [
     "flake8>=7.3.0",
     "flake8-pyproject>=1.2.4",
+    "mlx[cpu]>=0.32.1",
     "mypy>=2.3.1",
     "pydantic>=2.13.4",
     "pytest>=9.1.1",
@@ -71,7 +72,7 @@ count = true
 statistics = true
 show-source = true
 
-# Rodrigo
+# My Linting Tools:
 [tool.ruff]
 indent-width = 4
 line-length = 79
@@ -121,4 +122,17 @@ unfixable = []
 [tool.ruff.lint.mccabe]
 max-complexity = 12
 
-[tool.ty]
+[tool.ty.src]
+exclude=[
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".mypy_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+    "lib"
+]
+
+[tool.ty.analysis]
+allowed-unresolved-imports=["*"]

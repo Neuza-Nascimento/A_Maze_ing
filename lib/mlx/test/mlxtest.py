@@ -1,7 +1,7 @@
 # Mlx large test
 
 import sys
-from mlx import Mlx  # Import Mlx class
+from ..mlx import Mlx  # Import Mlx class
 
 class ImgData:
     """Structure for image data"""
@@ -18,7 +18,7 @@ class XVar:
     """Structure for main vars"""
     def __init__(self):
         self.mlx = None
-        self.mlx_ptr = None
+        self.wptr = None
         self.screen_w = 0
         self.screen_h = 0
         self.win_1 = None
