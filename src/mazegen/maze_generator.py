@@ -32,6 +32,7 @@ class MazeGenerator:
         self._blocked: set[tuple[int, int]] = set()
         random.seed(config.seed)
         self._create_grid()
+        self._solution = []
 
     def _create_grid(self) -> None:
         n: int = MagicValues.CLOSED.value
@@ -215,8 +216,12 @@ class MazeGenerator:
         if not solved_path:
             print("Unable to find a solution!\n")
             return False
+        self._solution = solved_path
         self._output_res(solved_path)
         return True
+
+    def get_solution(self) -> list[str]:
+        return self._solution
 
     def get_grid(self) -> list[list[int]]:
         return self._grid

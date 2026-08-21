@@ -4,6 +4,7 @@ from platform import python_version
 
 from pydantic import ValidationError
 
+from mazegen import Maze_visualizer
 from mazegen import MazeGenerator, magic_values
 from parsing import parser
 
@@ -18,6 +19,8 @@ def main() -> None:
         maze.generate()
         for row in maze.get_grid():
             sys.stdout.write(f"{row}\n")
+        visu = Maze_visualizer(maze)
+        visu.render()
     except ValidationError as e:
         error = e.errors()[0]["msg"]
         msg: str = error.removeprefix("Value error, ")

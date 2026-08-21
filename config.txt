@@ -9,9 +9,8 @@ EXIT=18,13
 # File to output solved maze
 OUTPUT_FILE=maze.txt
 # If maze must be a perfect
-PERFECT=False
+PERFECT=True
 # Seed Generation
-SEED=42
 # Algorithm
 ALGORITHM=kruskal
 # Display option

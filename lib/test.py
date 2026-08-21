@@ -154,13 +154,10 @@ def draw_maze(mlx, mlx_ptr, win_ptr, maze_width, window_height, cell_size, show_
     image = mlx.mlx_new_image(mlx_ptr, maze_width, window_height)
     data, bpp, size_line, endian = mlx.mlx_get_data_addr(image)
     bytes_per_pixel = 4
-
-    # Preencher o fundo
-    # for y in range(window_height):
-    #     for x in range(maze_width):
-    #         pos = y * size_line + x * bytes_per_pixel
-    #         data[pos:pos + 4] = current_colors["CELL_COLOR"].to_bytes(4, 'little')
-    mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, img_bg["img"], 0, 0)
+    for y in range(window_height):
+        for x in range(maze_width):
+            pos = y * size_line + x * bytes_per_pixel
+            data[pos:pos + 4] = current_colors["CELL_COLOR"].to_bytes(4, 'little')
 
     # Desenhar o labirinto
     for row in range(len(tam)):

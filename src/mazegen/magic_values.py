@@ -44,6 +44,12 @@ OPPOSITE: dict[int, int] = {
     MagicValues.WEST.value: MagicValues.EAST.value
 }
 
+DIR_BY_LETTER: dict[str, tuple[int, int]] = {
+    "N": (-1, 0),
+    "S": (1, 0),
+    "E": (0, 1),
+    "W": (0, -1)
+}
 
 MAX_32: int = 52
 MIN_32: int = 18
