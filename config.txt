@@ -3,9 +3,9 @@ WIDTH=25
 # Y axis
 HEIGHT=25
 # Entry Point
-ENTRY=13,9
+ENTRY=23,23
 # Exit Point
-EXIT=1,4
+EXIT=1,1
 # File to output solved maze
 OUTPUT_FILE=maze.txt
 # If maze must be a perfect

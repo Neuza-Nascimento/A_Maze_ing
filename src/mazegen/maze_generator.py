@@ -3,18 +3,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from .magic_values import (
+    DIMENSIONS,
     DIR_LETTER,
     DIRECTIONS,
-    MAX_8,
-    MAX_16,
-    MAX_32,
     MIN_8,
-    MIN_16,
-    MIN_32,
     OPPOSITE,
-    P42_8,
-    P42_16,
-    P42_32,
     MagicValues,
 )
 
@@ -69,13 +62,7 @@ class MazeGenerator:
                 self._grid[y][x] = MagicValues.CLOSED.value
                 self._blocked.add((x, y))
 
-        size_patterns: list[tuple[int, int, list[tuple[int, int]]]] = [
-            (MIN_8, MAX_8, P42_8),
-            (MIN_16, MAX_16, P42_16),
-            (MIN_32, MAX_32, P42_32),
-        ]
-
-        for lo, hi, pattern in size_patterns:
+        for lo, hi, pattern in DIMENSIONS:
             if lo <= self._height <= hi or lo <= self._width <= hi:
                 draw(pattern)
             if (MIN_8 - 1) in {self._width, self._height}:

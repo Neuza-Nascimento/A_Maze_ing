@@ -32,7 +32,6 @@ OPPOSITE: dict[int, int] = {
     MagicValues.WEST.value: MagicValues.EAST.value
 }
 
-
 MAX_32: int = 52
 MIN_32: int = 18
 P42_32: list[tuple[int, int]] = [
@@ -62,4 +61,10 @@ P42_8: list[tuple[int, int]] = [
     (0, 2), (1, 2), (3, 2),
     (0, 3), (1, 3), (2, 3),
     (1, 4), (2, 4), (3, 4),
+]
+
+DIMENSIONS: list[tuple[int, int, list[tuple[int, int]]]] = [
+    (MIN_8, MAX_8, P42_8),
+    (MIN_16, MAX_16, P42_16),
+    (MIN_32, MAX_32, P42_32),
 ]

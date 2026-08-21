@@ -3,17 +3,7 @@ from typing import Self
 
 from pydantic import BaseModel, Field, model_validator
 
-from .magic_values import (
-    MAX_8,
-    MAX_16,
-    MAX_32,
-    MIN_8,
-    MIN_16,
-    MIN_32,
-    P42_8,
-    P42_16,
-    P42_32,
-)
+from .magic_values import DIMENSIONS, MIN_8
 
 
 class MazeConfig(BaseModel):
@@ -41,13 +31,7 @@ class MazeConfig(BaseModel):
             exrr: str = f"Exit (X={ex},Y={ey}) out of bounds!"
             raise ValueError(exrr)
 
-        size_patterns: list[tuple[int, int, list[tuple[int, int]]]] = [
-            (MIN_8, MAX_8, P42_8),
-            (MIN_16, MAX_16, P42_16),
-            (MIN_32, MAX_32, P42_32),
-        ]
-
-        for lo, hi, pattern in size_patterns:
+        for lo, hi, pattern in DIMENSIONS:
             if (MIN_8 - 1) in {self.width, self.height}:
                 return self
             if lo <= self.height <= hi or lo <= self.width <= hi:
