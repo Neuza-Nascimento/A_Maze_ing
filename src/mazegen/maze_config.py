@@ -9,11 +9,11 @@ class MazeConfig(BaseModel):
     height: int = Field(gt=0)
     entry: tuple[int, int] = Field(min_length=2, max_length=2)
     exit: tuple[int, int] = Field(min_length=2, max_length=2)
-    output_file: str = Field(default="maze.txt")
+    output_file: str
     perfect: bool
     seed: int | None = Field(default_factory=lambda: secrets.randbits(32))
-    algorithm: str | None = Field(default="DFS")
-    display: str | None = Field(default="MLX")
+    algorithm: str | None = Field(default="dfs")
+    display: str | None = Field(default="mlx")
 
     @model_validator(mode="after")
     def validate_config(self) -> Self:

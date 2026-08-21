@@ -13,6 +13,6 @@ PERFECT=False
 # Seed Generation
 SEED=42
 # Algorithm
-ALGORITHM=kruskal
+ALGORITHM=dfs
 # Display option
 DISPLAY=mlx

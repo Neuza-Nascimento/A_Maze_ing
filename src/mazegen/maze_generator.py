@@ -145,8 +145,34 @@ class MazeGenerator:
                 self._grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
 
     def _prim(self) -> None:
-        matrix = self._grid
-        del matrix
+        in_maze: set[tuple[int, int]] = {self._config.entry}
+        frontier: list[
+            tuple[tuple[int, int], MagicValues, tuple[int, int]]
+        ] = []
+
+        def get_walls(cell: tuple[int, int]) -> None:
+            cx, cy = cell
+            for direction, (dx, dy) in DIRECTIONS.items():
+                nx, ny = cx + dx, cy + dy
+                if (nx, ny) in self._blocked or (nx, ny) in in_maze:
+                    continue
+                if not (0 <= nx < self._width and 0 <= ny < self._height):
+                    continue
+                frontier.append((cell, direction, (nx, ny)))
+
+        get_walls(self._config.entry)
+
+        while frontier:
+            i: int = random.randrange(len(frontier))
+            (cx, cy), direction, neighbour = frontier.pop(i)
+            if neighbour in in_maze:
+                continue
+
+            nx, ny = neighbour
+            self._grid[cy][cx] &= ~direction.value
+            self._grid[ny][nx] &= ~OPPOSITE[direction.value]
+            in_maze.add(neighbour)
+            get_walls(neighbour)
 
     def _bfs(self) -> list[str]:
         queque: deque[tuple[tuple[int, int], list[str]]] = deque(
@@ -206,10 +232,10 @@ class MazeGenerator:
         else:
             if self._config.algorithm == "dfs":
                 self._dfs()
-            if self._config.algorithm == "prim":
-                self._prim()
-            if self._config.algorithm == "kruskal":
+            elif self._config.algorithm == "kruskal":
                 self._kruskal()
+            elif self._config.algorithm == "prim":
+                self._prim()
             solved_path = self._bfs()
 
         if not solved_path:
