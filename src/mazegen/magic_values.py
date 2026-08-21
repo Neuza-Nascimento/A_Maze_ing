@@ -10,18 +10,6 @@ class MagicValues(Enum):
     CLOSED = 0b1111
 
 
-MAX_ARGS: int = 2
-
-KEYS: list[str] = [
-    "WIDTH",
-    "HEIGHT",
-    "ENTRY",
-    "EXIT",
-    "OUTPUT_FILE",
-    "PERFECT",
-]
-
-
 DIRECTIONS: dict[MagicValues, tuple[int, int]] = {
     MagicValues.NORTH: (0, -1),
     MagicValues.EAST: (1, 0),

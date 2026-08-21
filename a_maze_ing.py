@@ -4,12 +4,14 @@ from platform import python_version
 
 from pydantic import ValidationError
 
-from mazegen import MazeGenerator, magic_values
+from mazegen import MazeGenerator
 from parsing import parser
+
+MAX_ARGS: int = 2
 
 
 def main() -> None:
-    if len(sys.argv) != magic_values.MAX_ARGS:
+    if len(sys.argv) != MAX_ARGS:
         sys.stderr.write(f"Usage: python{python_version()} <{sys.argv[0]}>\n")
         return
     try:
