@@ -6,7 +6,6 @@ BUILD = $(UV) build
 CONFIG = config.txt
 MAIN = a_maze_ing.py
 SUBDIR = src/mazegen
-SHELL := /bin/bash
 CACHE = __pycache__ .mypy_cache .ruff_cache \
 
 all: install
@@ -18,7 +17,7 @@ run:
 	$(RUN) $(MAIN) $(CONFIG)
 
 build:
-	$(BUILD)
+	$(BUILD) --no-create-gitignore
 
 debug:
 	$(PYTHON) -m pdb $(MAIN) $(CONFIG)
