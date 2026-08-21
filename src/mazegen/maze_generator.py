@@ -224,24 +224,22 @@ class MazeGenerator:
                 f.write(f"{s}")
             f.write("\n")
 
-    def generate(self) -> bool:
-        solved_path: list[str]
-        if self._config.perfect:
-            self._kruskal()
-            solved_path = self._bfs()
-        else:
+    def generate(self) -> None:
+        if not self._config.perfect:
             if self._config.algorithm == "dfs":
                 self._dfs()
             elif self._config.algorithm == "kruskal":
                 self._kruskal()
             elif self._config.algorithm == "prim":
                 self._prim()
-            solved_path = self._bfs()
+        self._kruskal()
 
-        if not solved_path:
+    def solve(self) -> bool:
+        path: list[str] = self._bfs()
+        if not path:
             print("Unable to find a solution!\n")
             return False
-        self._output_res(solved_path)
+        self._output_res(path)
         return True
 
     def get_grid(self) -> list[list[int]]:

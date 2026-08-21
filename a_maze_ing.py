@@ -18,8 +18,8 @@ def main() -> None:
         config = parser(sys.argv[1])
         maze = MazeGenerator(config)
         maze.generate()
-        for row in maze.get_grid():
-            sys.stdout.write(f"{row}\n")
+        if not maze.solve():
+            sys.exit(1)
     except ValidationError as e:
         error = e.errors()[0]["msg"]
         msg: str = error.removeprefix("Value error, ")
