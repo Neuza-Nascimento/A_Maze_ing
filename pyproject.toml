@@ -122,4 +122,14 @@ unfixable = []
 [tool.ruff.lint.mccabe]
 max-complexity = 12
 
-[tool.ty]
+[tool.ty.src]
+exclude=[
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".mypy_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+    "lib"
+]
