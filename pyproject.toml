@@ -72,7 +72,7 @@ count = true
 statistics = true
 show-source = true
 
-# Rodrigo
+# My Linting Tools:
 [tool.ruff]
 indent-width = 4
 line-length = 79
@@ -133,3 +133,6 @@ exclude=[
     "dist",
     "lib"
 ]
+
+[tool.ty.analysis]
+allowed-unresolved-imports=["*"]
