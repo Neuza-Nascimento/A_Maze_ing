@@ -4,29 +4,50 @@
 
 ## Table of Contents
 
-## Introduction
+1. [Introduction](#introduction)
+	1. [Description](#description)
+	2. [Instalation](#instalation)
+	3. [Resources](#resources)
+2. [Structure](#structure)
+	1. [Parsing](#parsing)
+	2. [Configuration](#configuration)
+	3. [Generation](#generation)
+	4. [Visualization](#visualization)
+	5. [Tools](#tools)
+3. [Features](#features)
+	1. [Package Project](#package-project)
+	2. [Code Reusability](#code-reusability)
+	3. [Bonus Features](#bonus-features)
+	4. [Project Management](#project-management)
+4. [Team](#team)
+	1. [Neuza](#neuza)
+	2. [Rodrigo](#rodrigo)
 
-Create your own maze generator and display its result!
+# Introduction
+
+Generate a Maze? We are going to build this from the ground up!
 
 ## Description
 
-The A-Maze-Ing Project asks us to implement a maze generator in Python that takes a configuration file in order to generate a maze, possibly perfect (with a single path between entrance and exit), and writes it to a output file of the user's name choice, using a hexadecimal wall representation. Provididing as well a visual representation of the maze.
+The A-Maze-Ing Project asks us to implement a maze generator in Python that takes a configuration file in order to generate a maze, possibly perfect (with a single path between entrance and exit), and writes it to a output file of the user's name choice, using a hexadecimal wall representation. Provididing a visual representation of the maze as well.
 
 ## Instructions
 
-It is best to install the UV dependency manager in order to use the provided Makefile, a requirements.txt is also found at the root of the repository in case UV is cannot be used, and in that case:
-
-Run the following commands to install the dependencies for the package
+It is best to install the UV dependency manager in order to use the provided Makefile, a requirements.txt is also found at the root of the repository in case UV cannot be used, and in that case run the following commands to install the dependencies for the project:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-	If your python version is not python 3.14.0, the python command my not be usable, so instead use python3. 
+	If your python version is not python 3.14.0, the python command may not be usable, so instead use python3. 
 
 The Makefile provided can be used to:  
-install, run, build, debug, and lint the code in this repository.
+ - Install
+ - Run
+ - Build
+ - Debug
+ - Lint
 
 ```bash
 make install
@@ -46,7 +67,7 @@ make lint
 make lint-strict
 ```
 
-Both the *lint* and *lint-strict* instructions will call uv to run mypy and flake8, if the lint-strict instruction is used mypy will be executed with the --strict flag. We use uv to run these tools in order that no missing-imports warn shows up because that could be a misleading warn if the dependencies are all installed but if UV is cannot be used, calling either `python -m flake8/mypy .` or `flake8/mypy .` will work
+Both the *lint* and *lint-strict* instructions will call uv to run mypy and flake8, if the lint-strict instruction is used, mypy will be executed with the --strict flag. We use uv to run these tools in order that the 'missing-imports' warn doesn't show up since that could be a misleading warn if the dependencies are all installed. UV is cannot be used, calling either `python -m flake8/mypy .` or `flake8/mypy .` will work as well.
 
 The *build* and *debug* instructions are stricly for building the whells and tar file asked by the subject and helping to debug the code found here. They shouldnt be used unless for those that maintain this project
 
@@ -54,17 +75,19 @@ The *build* and *debug* instructions are stricly for building the whells and tar
 
 AI was used to do shit here, 
 
-## Structure
-### Parsing
-### Configuration
-### Generation
-### Visualization
-### Tools
-## Features
-### Package Project
-### Code Reusability
-### Bonus Features
-### Project Management
-## Team
-### Neuza
-### Rodrigo
+# Structure
+## Parsing
+## Configuration
+## Generation
+## Visualization
+## Tools
+
+# Features
+## Package Project
+## Code Reusability
+## Bonus Features
+## Project Management
+
+# Team
+## Neuza
+## Rodrigo
