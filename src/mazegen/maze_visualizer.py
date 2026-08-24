@@ -115,7 +115,7 @@ class Maze_visualizer:
                             px = x_start + x
                             py = y_start + y
                             pos = py * size_line + px * bytes_per_pixel
-                            data[pos : pos + 4] = color.to_bytes(4, "little")
+                            data[pos: pos + 4] = color.to_bytes(4, "little")
 
                 if value & MagicValues.NORTH.value:
                     for x in range(self.cell_size):
@@ -123,7 +123,7 @@ class Maze_visualizer:
                             px = x_start + x
                             py = y_start + y
                             pos = py * size_line + px * bytes_per_pixel
-                            data[pos : pos + 4] = current_colors["WALL_COLOR"].to_bytes(
+                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(
                                 4, "little"
                             )
 
@@ -226,12 +226,13 @@ class Maze_visualizer:
 
             if keycode == 49:  # '1'
                 self.is_animating = False
+                seed = random.randint(0, 2**32)
+                self.gen._config.seed = seed
                 gen = MazeGenerator(self.gen._config)
                 self.gen = gen
                 self.gen.generate()
-                self.gen._output_res(self.gen.get_solution())
                 self.full_redraw()
-                print("chegouuuuu")
+
             elif keycode == 50:  # '2'
                 print(" Mostrar caminho...")
                 if self.is_animating:
