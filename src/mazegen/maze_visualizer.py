@@ -90,7 +90,7 @@ class Maze_visualizer:
         for y in range(self.window_height):
             for x in range(self.maze_width):
                 pos = y * size_line + x * bytes_per_pixel
-                data[pos : pos + 4] = current_colors["CELL_COLOR"].to_bytes(4, "little")
+                data[pos: pos + 4] = current_colors["CELL_COLOR"].to_bytes(4, "little")
 
         for row in range(len(self.gen._grid)):
             for col in range(len(self.gen._grid[row])):
@@ -135,7 +135,7 @@ class Maze_visualizer:
                             px = x_start + x
                             py = y_start + y
                             pos = py * size_line + px * bytes_per_pixel
-                            data[pos : pos + 4] = current_colors["WALL_COLOR"].to_bytes(
+                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(
                                 4, "little"
                             )
 
@@ -145,7 +145,7 @@ class Maze_visualizer:
                             px = x_start + x
                             py = y_start + y
                             pos = py * size_line + px * bytes_per_pixel
-                            data[pos : pos + 4] = current_colors["WALL_COLOR"].to_bytes(
+                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(
                                 4, "little"
                             )
 
@@ -157,7 +157,7 @@ class Maze_visualizer:
                             px = x_start + x
                             py = y_start + y
                             pos = py * size_line + px * bytes_per_pixel
-                            data[pos : pos + 4] = current_colors["WALL_COLOR"].to_bytes(
+                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(
                                 4, "little"
                             )
 
@@ -229,8 +229,9 @@ class Maze_visualizer:
                 gen = MazeGenerator(self.gen._config)
                 self.gen = gen
                 self.gen.generate()
+                self.gen._output_res(self.gen.get_solution())
                 self.full_redraw()
-
+                print("chegouuuuu")
             elif keycode == 50:  # '2'
                 print(" Mostrar caminho...")
                 if self.is_animating:
