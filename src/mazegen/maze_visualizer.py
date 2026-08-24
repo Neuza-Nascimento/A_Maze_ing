@@ -55,7 +55,7 @@ class Maze_visualizer:
         row, col = entry_y, entry_x
 
         path.append((row, col))
-
+        self.gen.solve()
         for letter in self.gen.get_solution():
             dr, dc = DIR_BY_LETTER[letter]
             row += dr
@@ -184,11 +184,11 @@ class Maze_visualizer:
                                 )
 
                                 if is_border:
-                                    data[pos : pos + 4] = path_color.to_bytes(
+                                    data[pos: pos + 4] = path_color.to_bytes(
                                         4, "little"
                                     )
                                 else:
-                                    data[pos : pos + 4] = path_color.to_bytes(
+                                    data[pos: pos + 4] = path_color.to_bytes(
                                         4, "little"
                                     )
 
@@ -234,7 +234,6 @@ class Maze_visualizer:
                 self.full_redraw()
 
             elif keycode == 50:  # '2'
-                print(" Mostrar caminho...")
                 if self.is_animating:
                     return
                 self.path_cells = self.build_path_cells()

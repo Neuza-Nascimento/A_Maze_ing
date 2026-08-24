@@ -57,7 +57,7 @@ exclude = [
 ]
 
 [tool.flake8]
-max-line-length = 79
+max-line-length = 100
 extend-exclude = [
     ".git",
     ".venv",
@@ -72,10 +72,10 @@ count = true
 statistics = true
 show-source = true
 
-# Rodrigo
+# My Linting Tools:
 [tool.ruff]
 indent-width = 4
-line-length = 79
+line-length = 100
 respect-gitignore = true
 target-version = "py314"
 extend-exclude = [
@@ -122,4 +122,17 @@ unfixable = []
 [tool.ruff.lint.mccabe]
 max-complexity = 12
 
-[tool.ty]
+[tool.ty.src]
+exclude=[
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".mypy_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+    "lib"
+]
+
+[tool.ty.analysis]
+allowed-unresolved-imports=["*"]

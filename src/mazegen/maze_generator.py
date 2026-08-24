@@ -3,18 +3,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from .magic_values import (
+    DIMENSIONS,
     DIR_LETTER,
     DIRECTIONS,
-    MAX_8,
-    MAX_16,
-    MAX_32,
     MIN_8,
-    MIN_16,
-    MIN_32,
     OPPOSITE,
-    P42_8,
-    P42_16,
-    P42_32,
     MagicValues,
 )
 
@@ -32,7 +25,7 @@ class MazeGenerator:
         self._blocked: set[tuple[int, int]] = set()
         random.seed(config.seed)
         self._create_grid()
-        self._solution = []
+        self._solution: list[str] = []
 
     def _create_grid(self) -> None:
         n: int = MagicValues.CLOSED.value
@@ -59,31 +52,22 @@ class MazeGenerator:
 
         return center_x, center_y
 
-    def _42_pattern(self) -> bool:
-        def draw(pattern: list[tuple[int, int]]) -> bool:
+    def _42_pattern(self) -> None:
+        def draw(pattern: list[tuple[int, int]]) -> None:
             center_x, center_y = self._centered_origin(pattern)
             for dx, dy in pattern:
                 x, y = center_x + dx, center_y + dy
                 if not (0 <= x < self._width and 0 <= y < self._height):
                     print("Warning: Maze too small for 42 pattern!")
-                    return False
+                    return
                 self._grid[y][x] = MagicValues.CLOSED.value
                 self._blocked.add((x, y))
-            return True
 
-        size_patterns: list[tuple[int, int, list[tuple[int, int]]]] = [
-            (MIN_8, MAX_8, P42_8),
-            (MIN_16, MAX_16, P42_16),
-            (MIN_32, MAX_32, P42_32),
-        ]
-
-        for lo, hi, pattern in size_patterns:
+        for lo, hi, pattern in DIMENSIONS:
             if lo <= self._height <= hi or lo <= self._width <= hi:
-                return draw(pattern)
+                draw(pattern)
             if (MIN_8 - 1) in {self._width, self._height}:
                 print("Warning, maze too small for the 42 Pattern!")
-                return False
-        return True
 
     def _dfs(self) -> None:
         visited: set[tuple[int, int]] = {self._config.entry}
@@ -146,8 +130,33 @@ class MazeGenerator:
                 self._grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
 
     def _prim(self) -> None:
-        matrix = self._grid
-        del matrix
+        in_maze: set[tuple[int, int]] = {self._config.entry}
+        frontier: list[
+            tuple[tuple[int, int], MagicValues, tuple[int, int]]
+        ] = []
+
+        def get_walls(cell: tuple[int, int]) -> None:
+            for direction, (dx, dy) in DIRECTIONS.items():
+                nx, ny = cell[0] + dx, cell[1] + dy
+                if (nx, ny) in self._blocked or (nx, ny) in in_maze:
+                    continue
+                if not (0 <= nx < self._width and 0 <= ny < self._height):
+                    continue
+                frontier.append((cell, direction, (nx, ny)))
+
+        get_walls(self._config.entry)
+
+        while frontier:
+            i: int = random.randrange(len(frontier))
+            (cx, cy), direction, neighbour = frontier.pop(i)
+            if neighbour in in_maze:
+                continue
+
+            nx, ny = neighbour
+            self._grid[cy][cx] &= ~direction.value
+            self._grid[ny][nx] &= ~OPPOSITE[direction.value]
+            in_maze.add(neighbour)
+            get_walls(neighbour)
 
     def _bfs(self) -> list[str]:
         queque: deque[tuple[tuple[int, int], list[str]]] = deque(
@@ -199,25 +208,23 @@ class MazeGenerator:
                 f.write(f"{s}")
             f.write("\n")
 
-    def generate(self) -> bool:
-        solved_path: list[str]
+    def generate(self) -> None:
         if self._config.perfect:
             self._kruskal()
-            solved_path = self._bfs()
-        else:
-            if self._config.algorithm == "dfs":
-                self._dfs()
-            if self._config.algorithm == "prim":
-                self._prim()
-            if self._config.algorithm == "kruskal":
-                self._kruskal()
-            solved_path = self._bfs()
+        elif self._config.algorithm == "dfs":
+            self._dfs()
+        elif self._config.algorithm == "kruskal":
+            self._kruskal()
+        elif self._config.algorithm == "prim":
+            self._prim()
 
-        if not solved_path:
+    def solve(self) -> bool:
+        path: list[str] = self._bfs()
+        if not path:
             print("Unable to find a solution!\n")
             return False
-        self._solution = solved_path
-        self._output_res(solved_path)
+        self._solution = path
+        self._output_res(path)
         return True
 
     def get_solution(self) -> list[str]:

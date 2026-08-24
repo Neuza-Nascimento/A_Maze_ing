@@ -1,17 +1,18 @@
 # X axis
-WIDTH=20
+WIDTH=25
 # Y axis
-HEIGHT=15
+HEIGHT=25
 # Entry Point
-ENTRY=1,1
+ENTRY=23,23
 # Exit Point
-EXIT=18,13
+EXIT=1,1
 # File to output solved maze
 OUTPUT_FILE=maze.txt
 # If maze must be a perfect
-PERFECT=True
-# Seed Generation
+PERFECT=False
 # Algorithm
-ALGORITHM=kruskal
+ALGORITHM=prim
 # Display option
 DISPLAY=mlx
+# Seed Generation
+SEED=42
