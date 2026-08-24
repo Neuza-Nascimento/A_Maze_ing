@@ -1,4 +1,3 @@
-from typing import Any
 from lib.mlx import Mlx
 from .maze_generator import MazeGenerator
 from .magic_values import MagicValues, DIR_BY_LETTER
@@ -245,6 +244,12 @@ class Maze_visualizer:
                 self.apply_new_theme()
                 self.is_animating = False
                 self.full_redraw()
+
+            elif keycode == 52:  # '4'
+                self.is_animating = False
+
+            elif keycode == 53:  # '5'
+                self.is_animating = True
 
             elif keycode == 65307:  # ESC
                 self.mlx.mlx_loop_exit(self.mlx_ptr)
