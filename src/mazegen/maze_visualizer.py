@@ -106,7 +106,7 @@ class MazeVisualizer:
                     color = current_colors["ENTRY_COLOR"]
                 elif (col, row) == self.gen.config.exit:
                     color = current_colors["EXIT_COLOR"]
-                elif value == MagicValues.CLOSED.value: # 15
+                elif value == MagicValues.CLOSED.value:  # 15
                     color = current_colors["COLOR_15"]
 
                 if color is not None:

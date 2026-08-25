@@ -56,6 +56,11 @@ exclude = [
     "lib/"
 ]
 
+[[tool.mypy.overrides]]
+module = "lib.mlx"
+follow_imports = "skip"
+ignore_missing_imports = true
+
 [tool.flake8]
 max-line-length = 100
 extend-exclude = [
