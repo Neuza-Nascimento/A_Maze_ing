@@ -26,8 +26,8 @@ def main() -> None:
         sys.stderr.write(f"Error: {e}\n")
     if not maze.solve():
         sys.exit(1)
-    # visu = MazeVisualizer(maze)
-    # visu.render()
+    visu = MazeVisualizer(maze)
+    visu.render()
 
 
 if __name__ == "__main__":
