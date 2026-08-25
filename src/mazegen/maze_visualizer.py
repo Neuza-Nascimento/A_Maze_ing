@@ -10,23 +10,23 @@ class MazeVisualizer:
     """Display visual representation of the generated maze by the mazeGenerator Class"""
 
     def __init__(self, generator: MazeGenerator) -> None:
-        self.gen = generator
+        self.gen: MazeGenerator = generator
         self.mlx = Mlx()
         self.mlx_ptr = self.mlx.mlx_init()
-        self.cell_size = 30
-        self.maze_height = self.gen.get_height() * self.cell_size
-        self.maze_width = self.gen.get_width() * self.cell_size
-        self.window_height = self.maze_height + 100
+        self.cell_size: int = 30
+        self.maze_height: int = self.gen.get_height() * self.cell_size
+        self.maze_width: int = self.gen.get_width() * self.cell_size
+        self.window_height: int = self.maze_height + 100
         self.win_ptr = self.mlx.mlx_new_window(
             self.mlx_ptr, self.maze_width, self.window_height, "A-maze-ing"
         )
-        self.color_themes = [self.generate_color_palette() for _ in range(5)]
-        self.current_theme_index = 0
-        self.current_colors = self.color_themes[self.current_theme_index].copy()
-        self.border_size = 1
-        self.path_cells = []
-        self.path_step = 0
-        self.is_animating = False
+        self.color_themes: list[dict[str, int]] = [self.generate_color_palette() for _ in range(5)]
+        self.current_theme_index: int = 0
+        self.current_colors: dict[str, int] = self.color_themes[self.current_theme_index].copy()
+        self.border_size: int = 1
+        self.path_cells: list[tuple[int, int]] = []
+        self.path_step: int = 0
+        self.is_animating: bool = False
 
     def random_color(   # PODE SER UM METODO ESTATICO E OS ARGUMENTOS PODEM SER TUPLAS
         self, min_r: int, max_r: int, min_g: int, max_g: int, min_b: int, max_b: int
@@ -49,8 +49,8 @@ class MazeVisualizer:
         }
 
     def apply_new_theme(self) -> None:
-        self.current_theme_index: int = (self.current_theme_index + 1) % len(self.color_themes)
-        self.current_colors: dict[str, int] = self.color_themes[self.current_theme_index].copy()
+        self.current_theme_index = (self.current_theme_index + 1) % len(self.color_themes)
+        self.current_colors = self.color_themes[self.current_theme_index].copy()
 
     def build_path_cells(self) -> list[tuple[int, int]]:
         path: list[tuple[int, int]] = []
@@ -66,7 +66,7 @@ class MazeVisualizer:
             path.append((row, col))
         return path
 
-    def animate_path(self, _param) -> None:  # DEFINIR TIPO
+    def animate_path(self, _param: None) -> None:  # DEFINIR TIPO
         if not self.is_animating:
             return
 
@@ -214,7 +214,7 @@ class MazeVisualizer:
         self._draw_maze(0)
         self.draw_menu()
 
-        def key_handler(keycode: int, _param) -> None:  # DEFINIR TIPO
+        def key_handler(keycode: int, _param: None) -> None:  # DEFINIR TIPO
 
             if keycode == Key.ONE.value:  # '1'
                 self.is_animating = False
@@ -247,7 +247,7 @@ class MazeVisualizer:
             elif keycode == Key.ESC.value:  # ESC
                 self.mlx.mlx_loop_exit(self.mlx_ptr)
 
-        def close_window(_empty) -> None:    # DEFINIR TIPO
+        def close_window(_empty: None) -> None:    # DEFINIR TIPO
             self.mlx.mlx_loop_exit(self.mlx_ptr)
 
         self.mlx.mlx_loop_hook(self.mlx_ptr, self.animate_path, None)
