@@ -28,7 +28,7 @@ class MazeVisualizer:
         self.path_step = 0
         self.is_animating = False
 
-    def random_color(
+    def random_color(   # PODE SER UM METODO ESTATICO E OS ARGUMENTOS PODEM SER TUPLAS
         self, min_r: int, max_r: int, min_g: int, max_g: int, min_b: int, max_b: int
     ) -> int:
         r = random.randint(min_r, max_r)
@@ -66,7 +66,7 @@ class MazeVisualizer:
             path.append((row, col))
         return path
 
-    def animate_path(self, param) -> None:
+    def animate_path(self, _param) -> None:  # DEFINIR TIPO
         if not self.is_animating:
             return
 
@@ -79,6 +79,7 @@ class MazeVisualizer:
         self._draw_maze(self.path_step)
         self.draw_menu()
 
+    # FUNÇÃO COMPLEXA DMS
     def _draw_maze(self, show_path_step: int = 0) -> None:
 
         path = self.build_path_cells()
@@ -105,10 +106,8 @@ class MazeVisualizer:
                     color = current_colors["ENTRY_COLOR"]
                 elif (col, row) == self.gen.config.exit:
                     color = current_colors["EXIT_COLOR"]
-                elif value == 15:
+                elif value == MagicValues.CLOSED.value: # 15
                     color = current_colors["COLOR_15"]
-                else:
-                    pass
 
                 if color is not None:
                     for y in range(self.cell_size):
@@ -215,7 +214,7 @@ class MazeVisualizer:
         self._draw_maze(0)
         self.draw_menu()
 
-        def key_handler(keycode: int, param) -> None:
+        def key_handler(keycode: int, _param) -> None:  # DEFINIR TIPO
 
             if keycode == Key.ONE.value:  # '1'
                 self.is_animating = False
@@ -248,7 +247,7 @@ class MazeVisualizer:
             elif keycode == Key.ESC.value:  # ESC
                 self.mlx.mlx_loop_exit(self.mlx_ptr)
 
-        def close_window(empty) -> None:
+        def close_window(_empty) -> None:    # DEFINIR TIPO
             self.mlx.mlx_loop_exit(self.mlx_ptr)
 
         self.mlx.mlx_loop_hook(self.mlx_ptr, self.animate_path, None)
