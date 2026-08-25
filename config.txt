@@ -9,7 +9,7 @@ EXIT=23,23
 # File to output solved maze
 OUTPUT_FILE=maze.txt
 # If maze must be a perfect
-PERFECT=False
+PERFECT=PERFECT
 # Algorithm
 ALGORITHM=prim
 # Display option

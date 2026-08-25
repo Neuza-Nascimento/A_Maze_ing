@@ -4,8 +4,7 @@ from platform import python_version
 
 from pydantic import ValidationError
 
-from mazegen import Maze_visualizer
-from mazegen import MazeGenerator
+from mazegen import Maze_visualizer, MazeGenerator
 from parsing import parser
 
 MAX_ARGS: int = 2

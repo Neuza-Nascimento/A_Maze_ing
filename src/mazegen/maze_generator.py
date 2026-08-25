@@ -13,6 +13,7 @@ from .magic_values import (
 
 if TYPE_CHECKING:
     from mazegen import MazeConfig
+    from collections.abc import Callable
 from collections import deque
 
 
@@ -233,14 +234,20 @@ class MazeGenerator:
             f.write("\n")
 
     def generate(self) -> None:
-        if self._config.perfect:
+        name: str | None = self._config.algorithm
+        algos: dict[str, Callable] = {
+            "DFS": self._dfs,
+            "KRUSKAL": self._kruskal,
+            "PRIM": self._prim,
+        }
+        for algo, func in algos.items():
+            if algo == name:
+                func()
+                break
             self._kruskal()
-        elif self._config.algorithm == "dfs":
-            self._dfs()
-        elif self._config.algorithm == "kruskal":
-            self._kruskal()
-        elif self._config.algorithm == "prim":
-            self._prim()
+            break
+
+        if not self._config.perfect:
             self._imperfect()
 
     def solve(self) -> bool:
