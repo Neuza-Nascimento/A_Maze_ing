@@ -12,8 +12,9 @@ from .magic_values import (
 )
 
 if TYPE_CHECKING:
-    from mazegen import MazeConfig
     from collections.abc import Callable
+
+    from mazegen import MazeConfig
 from collections import deque
 
 
@@ -39,9 +40,7 @@ class MazeGenerator:
             self._grid.append(row)
         self._42_pattern()
 
-    def _centered_origin(
-        self, pattern: list[tuple[int, int]]
-    ) -> tuple[int, int]:
+    def _centered_origin(self, pattern: list[tuple[int, int]]) -> tuple[int, int]:
         xs: list[int] = [dx for dx, _ in pattern]
         ys: list[int] = [dy for _, dy in pattern]
 
@@ -132,9 +131,7 @@ class MazeGenerator:
 
     def _prim(self) -> None:
         in_maze: set[tuple[int, int]] = {self._config.entry}
-        frontier: list[
-            tuple[tuple[int, int], MagicValues, tuple[int, int]]
-        ] = []
+        frontier: list[tuple[tuple[int, int], MagicValues, tuple[int, int]]] = []
 
         def get_walls(cell: tuple[int, int]) -> None:
             for direction, (dx, dy) in DIRECTIONS.items():
@@ -160,9 +157,7 @@ class MazeGenerator:
             get_walls(neighbour)
 
     def _bfs(self) -> list[str]:
-        queque: deque[tuple[tuple[int, int], list[str]]] = deque(
-            [(self._config.entry, [])]
-        )
+        queque: deque[tuple[tuple[int, int], list[str]]] = deque([(self._config.entry, [])])
 
         walls_visited: set[tuple[int, int]] = {self._config.entry}
 
@@ -196,7 +191,9 @@ class MazeGenerator:
 
     def _imperfect(self) -> None:
         walls: list[tuple[tuple[int, int], tuple[int, int], MagicValues]] = []
-        def open
+
+        def open_walls() -> None:
+            pass
 
         for y in range(self._height):
             for x in range(self._width):
@@ -221,8 +218,8 @@ class MazeGenerator:
     def _output_res(self, path: list[str]) -> None:
         output = Path(self._config.output_file)
         with output.open(mode="w", encoding="utf-8") as f:
-            for row in self._grid[1:-1]:
-                for num in row[1:-1]:
+            for row in self._grid:
+                for num in row:
                     f.write(hex(num)[-1].upper())
                 f.write("\n")
             f.write("\n")
