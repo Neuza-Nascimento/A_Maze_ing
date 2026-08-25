@@ -4,7 +4,7 @@ from platform import python_version
 
 from pydantic import ValidationError
 
-from mazegen import Maze_visualizer, MazeGenerator
+from mazegen import MazeGenerator, MazeVisualizer
 from parsing import parser
 
 MAX_ARGS: int = 2
@@ -26,7 +26,7 @@ def main() -> None:
         sys.stderr.write(f"Error: {e}\n")
     if not maze.solve():
         sys.exit(1)
-    visu = Maze_visualizer(maze)
+    visu = MazeVisualizer(maze)
     visu.render()
 
 

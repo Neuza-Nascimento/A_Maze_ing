@@ -10,34 +10,38 @@ class MagicValues(Enum):
     CLOSED = 0b1111
 
 
+class Key(Enum):
+    ONE = 49
+    TWO = 50
+    THR = 51
+    FRR = 52
+    FVE = 53
+    ESC = 65307
+
+
 DIRECTIONS: dict[MagicValues, tuple[int, int]] = {
     MagicValues.NORTH: (0, -1),
     MagicValues.EAST: (1, 0),
     MagicValues.SOUTH: (0, 1),
-    MagicValues.WEST: (-1, 0)
+    MagicValues.WEST: (-1, 0),
 }
 
 
 DIR_LETTER: dict[MagicValues, str] = {
     MagicValues.NORTH: "N",
-    MagicValues.EAST:  "E",
+    MagicValues.EAST: "E",
     MagicValues.SOUTH: "S",
-    MagicValues.WEST:  "W"
+    MagicValues.WEST: "W",
 }
 
 OPPOSITE: dict[int, int] = {
     MagicValues.NORTH.value: MagicValues.SOUTH.value,
     MagicValues.SOUTH.value: MagicValues.NORTH.value,
     MagicValues.EAST.value: MagicValues.WEST.value,
-    MagicValues.WEST.value: MagicValues.EAST.value
+    MagicValues.WEST.value: MagicValues.EAST.value,
 }
 
-DIR_BY_LETTER: dict[str, tuple[int, int]] = {
-    "N": (-1, 0),
-    "S": (1, 0),
-    "E": (0, 1),
-    "W": (0, -1)
-}
+DIR_BY_LETTER: dict[str, tuple[int, int]] = {"N": (-1, 0), "S": (1, 0), "E": (0, 1), "W": (0, -1)}
 
 MAX_32: int = 52
 MIN_32: int = 18

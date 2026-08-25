@@ -1,17 +1,21 @@
-from lib.mlx import Mlx
-from .maze_generator import MazeGenerator
-from .magic_values import MagicValues, DIR_BY_LETTER
 import random
 
+from lib.mlx import Mlx
 
-class Maze_visualizer:
+from .magic_values import DIR_BY_LETTER, Key, MagicValues
+from .maze_generator import MazeGenerator
+
+
+class MazeVisualizer:
+    """Display visual representation of the generated maze by the mazeGenerator Class"""
+
     def __init__(self, generator: MazeGenerator) -> None:
         self.gen = generator
         self.mlx = Mlx()
         self.mlx_ptr = self.mlx.mlx_init()
         self.cell_size = 30
-        self.maze_height = self.gen._height * self.cell_size
-        self.maze_width = self.gen._width * self.cell_size
+        self.maze_height = self.gen.get_height() * self.cell_size
+        self.maze_width = self.gen.get_width() * self.cell_size
         self.window_height = self.maze_height + 100
         self.win_ptr = self.mlx.mlx_new_window(
             self.mlx_ptr, self.maze_width, self.window_height, "A-maze-ing"
@@ -24,7 +28,9 @@ class Maze_visualizer:
         self.path_step = 0
         self.is_animating = False
 
-    def random_color(self, min_r, max_r, min_g, max_g, min_b, max_b) -> int:
+    def random_color(
+        self, min_r: int, max_r: int, min_g: int, max_g: int, min_b: int, max_b: int
+    ) -> int:
         r = random.randint(min_r, max_r)
         g = random.randint(min_g, max_g)
         b = random.randint(min_b, max_b)
@@ -43,14 +49,12 @@ class Maze_visualizer:
         }
 
     def apply_new_theme(self) -> None:
-        self.current_theme_index: int = (self.current_theme_index + 1) % len(
-            self.color_themes
-        )
+        self.current_theme_index: int = (self.current_theme_index + 1) % len(self.color_themes)
         self.current_colors: dict[str, int] = self.color_themes[self.current_theme_index].copy()
 
     def build_path_cells(self) -> list[tuple[int, int]]:
         path: list[tuple[int, int]] = []
-        entry_x, entry_y = self.gen._config.entry
+        entry_x, entry_y = self.gen.config.entry
         row, col = entry_y, entry_x
 
         path.append((row, col))
@@ -75,14 +79,12 @@ class Maze_visualizer:
         self._draw_maze(self.path_step)
         self.draw_menu()
 
-    def _draw_maze(self, show_path_step=0) -> None:
+    def _draw_maze(self, show_path_step: int = 0) -> None:
 
         path = self.build_path_cells()
 
-        image = self.mlx.mlx_new_image(
-            self.mlx_ptr, self.maze_width, self.window_height
-        )
-        data, bpp, size_line, endian = self.mlx.mlx_get_data_addr(image)
+        image = self.mlx.mlx_new_image(self.mlx_ptr, self.maze_width, self.window_height)
+        data, _bpp, size_line, _endian = self.mlx.mlx_get_data_addr(image)
         bytes_per_pixel = 4
         current_colors = self.current_colors
 
@@ -91,17 +93,17 @@ class Maze_visualizer:
                 pos = y * size_line + x * bytes_per_pixel
                 data[pos: pos + 4] = current_colors["CELL_COLOR"].to_bytes(4, "little")
 
-        for row in range(len(self.gen._grid)):
-            for col in range(len(self.gen._grid[row])):
-
-                value = self.gen._grid[row][col]
+        grid = self.gen.get_grid()
+        for row in range(len(grid)):
+            for col in range(len(grid[row])):
+                value = grid[row][col]
                 x_start = col * self.cell_size
                 y_start = row * self.cell_size
 
                 color = None
-                if (col, row) == self.gen._config.entry:
+                if (col, row) == self.gen.config.entry:
                     color = current_colors["ENTRY_COLOR"]
-                elif (col, row) == self.gen._config.exit:
+                elif (col, row) == self.gen.config.exit:
                     color = current_colors["EXIT_COLOR"]
                 elif value == 15:
                     color = current_colors["COLOR_15"]
@@ -122,21 +124,15 @@ class Maze_visualizer:
                             px = x_start + x
                             py = y_start + y
                             pos = py * size_line + px * bytes_per_pixel
-                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(
-                                4, "little"
-                            )
+                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(4, "little")
 
                 if value & MagicValues.SOUTH.value:
                     for x in range(self.cell_size):
-                        for y in range(
-                            self.cell_size - self.border_size, self.cell_size
-                        ):
+                        for y in range(self.cell_size - self.border_size, self.cell_size):
                             px = x_start + x
                             py = y_start + y
                             pos = py * size_line + px * bytes_per_pixel
-                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(
-                                4, "little"
-                            )
+                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(4, "little")
 
                 if value & MagicValues.WEST.value:
                     for y in range(self.cell_size):
@@ -144,21 +140,15 @@ class Maze_visualizer:
                             px = x_start + x
                             py = y_start + y
                             pos = py * size_line + px * bytes_per_pixel
-                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(
-                                4, "little"
-                            )
+                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(4, "little")
 
                 if value & MagicValues.EAST.value:
                     for y in range(self.cell_size):
-                        for x in range(
-                            self.cell_size - self.border_size, self.cell_size
-                        ):
+                        for x in range(self.cell_size - self.border_size, self.cell_size):
                             px = x_start + x
                             py = y_start + y
                             pos = py * size_line + px * bytes_per_pixel
-                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(
-                                4, "little"
-                            )
+                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(4, "little")
 
                 if show_path_step > 0 and (row, col) in path:
                     idx = path.index((row, col))
@@ -183,13 +173,9 @@ class Maze_visualizer:
                                 )
 
                                 if is_border:
-                                    data[pos: pos + 4] = path_color.to_bytes(
-                                        4, "little"
-                                    )
+                                    data[pos: pos + 4] = path_color.to_bytes(4, "little")
                                 else:
-                                    data[pos: pos + 4] = path_color.to_bytes(
-                                        4, "little"
-                                    )
+                                    data[pos: pos + 4] = path_color.to_bytes(4, "little")
 
         self.mlx.mlx_put_image_to_window(self.mlx_ptr, self.win_ptr, image, 0, 0)
 
@@ -229,18 +215,18 @@ class Maze_visualizer:
         self._draw_maze(0)
         self.draw_menu()
 
-        def key_handler(keycode, param) -> None:
+        def key_handler(keycode: int, param) -> None:
 
-            if keycode == 49:  # '1'
+            if keycode == Key.ONE.value:  # '1'
                 self.is_animating = False
                 seed = random.randint(0, 2**32)
-                self.gen._config.seed = seed
-                gen = MazeGenerator(self.gen._config)
+                self.gen.config.seed = seed
+                gen = MazeGenerator(self.gen.config)
                 self.gen = gen
                 self.gen.generate()
                 self.full_redraw()
 
-            elif keycode == 50:  # '2'
+            elif keycode == Key.TWO.value:  # '2'
                 if self.is_animating:
                     return
                 self.path_cells = self.build_path_cells()
@@ -248,18 +234,18 @@ class Maze_visualizer:
                 self.is_animating = True
                 self.full_redraw()
 
-            elif keycode == 51:  # '3'
+            elif keycode == Key.THR.value:  # '3'
                 self.apply_new_theme()
                 self.is_animating = False
                 self.full_redraw()
 
-            elif keycode == 52:  # '4'
+            elif keycode == Key.FRR.value:  # '4'
                 self.is_animating = False
 
-            elif keycode == 53:  # '5'
+            elif keycode == Key.FVE.value:  # '5'
                 self.is_animating = True
 
-            elif keycode == 65307:  # ESC
+            elif keycode == Key.ESC.value:  # ESC
                 self.mlx.mlx_loop_exit(self.mlx_ptr)
 
         def close_window(empty) -> None:

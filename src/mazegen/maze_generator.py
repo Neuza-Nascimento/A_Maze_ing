@@ -24,6 +24,7 @@ class MazeGenerator:
     The generator supports multiple maze-generation algorithms and can
     produce either perfect or imperfect mazes according to the configuration.
     """
+
     def __init__(self, config: MazeConfig) -> None:
         """Initialize a maze generator from the supplied configuration.
 
@@ -31,7 +32,7 @@ class MazeGenerator:
             config: Configuration containing maze dimensions, entry and exit,
                 generation options, and output settings.
         """
-        self._config: MazeConfig = config
+        self.config: MazeConfig = config
         self._width: int = config.width
         self._height: int = config.height
         self._grid: list[list[int]] = []
@@ -82,6 +83,7 @@ class MazeGenerator:
         A warning is printed when the maze dimensions are too small for the
         required pattern.
         """
+
         def draw(pattern: list[tuple[int, int]]) -> None:
             """Draw one 42-pattern component on the maze grid.
 
@@ -109,8 +111,8 @@ class MazeGenerator:
         The algorithm starts at the configured entry and opens walls while
         visiting unvisited neighbouring cells.
         """
-        visited: set[tuple[int, int]] = {self._config.entry}
-        stack: list[tuple[int, int]] = [self._config.entry]
+        visited: set[tuple[int, int]] = {self.config.entry}
+        stack: list[tuple[int, int]] = [self.config.entry]
         while stack:
             cx, cy = stack[-1]
             neighbors: list[tuple[MagicValues, int, int]] = []
@@ -196,7 +198,7 @@ class MazeGenerator:
         The algorithm grows the maze from the configured entry by selecting
         random walls from the current frontier.
         """
-        in_maze: set[tuple[int, int]] = {self._config.entry}
+        in_maze: set[tuple[int, int]] = {self.config.entry}
         frontier: list[tuple[tuple[int, int], MagicValues, tuple[int, int]]] = []
 
         def get_walls(cell: tuple[int, int]) -> None:
@@ -213,7 +215,7 @@ class MazeGenerator:
                     continue
                 frontier.append((cell, direction, (nx, ny)))
 
-        get_walls(self._config.entry)
+        get_walls(self.config.entry)
 
         while frontier:
             i: int = random.randrange(len(frontier))
@@ -234,15 +236,15 @@ class MazeGenerator:
             A list of direction letters representing the shortest path, or
             an empty list when the exit cannot be reached.
         """
-        queque: deque[tuple[tuple[int, int], list[str]]] = deque([(self._config.entry, [])])
+        queque: deque[tuple[tuple[int, int], list[str]]] = deque([(self.config.entry, [])])
 
-        walls_visited: set[tuple[int, int]] = {self._config.entry}
+        walls_visited: set[tuple[int, int]] = {self.config.entry}
 
         while queque:
             position, path = queque.popleft()
             px, py = position
 
-            if position == self._config.exit:
+            if position == self.config.exit:
                 return path
 
             for direction, (dx, dy) in DIRECTIONS.items():
@@ -272,6 +274,7 @@ class MazeGenerator:
         Walls adjacent to cells with only one open side are prioritized in
         order to reduce dead ends while preserving maze connectivity.
         """
+
         def open_count(cell: tuple[int, int]) -> int:
             """Count the open passages connected to a cell.
 
@@ -303,7 +306,7 @@ class MazeGenerator:
             for x in range(self._width):
                 if (x, y) in self._blocked:
                     continue
-                for direction, (dx, dy), otherdir in (
+                for direction, (_dx, _dy), otherdir in (
                     (MagicValues.EAST, (1, 0), (x + 1, y)),
                     (MagicValues.SOUTH, (0, 1), (x, y + 1)),
                 ):
@@ -340,15 +343,15 @@ class MazeGenerator:
             path: Direction letters forming the shortest path from entry to
                 exit.
         """
-        output = Path(self._config.output_file)
+        output = Path(self.config.output_file)
         with output.open(mode="w", encoding="utf-8") as f:
             for row in self._grid:
                 for num in row:
                     f.write(hex(num)[-1].upper())
                 f.write("\n")
             f.write("\n")
-            f.write(f"{self._config.entry[0]}, {self._config.entry[1]}\n")
-            f.write(f"{self._config.exit[0]}, {self._config.exit[1]}\n")
+            f.write(f"{self.config.entry[0]}, {self.config.entry[1]}\n")
+            f.write(f"{self.config.exit[0]}, {self.config.exit[1]}\n")
             f.write("\n")
             for s in path:
                 f.write(f"{s}")
@@ -361,8 +364,8 @@ class MazeGenerator:
         as non-perfect, additional walls are opened to create loops and
         reduce dead ends.
         """
-        name: str | None = self._config.algorithm
-        algos: dict[str, Callable] = {
+        name: str | None = self.config.algorithm
+        algos: dict[str, Callable[[], None]] = {
             "DFS": self._dfs,
             "KRUSKAL": self._kruskal,
             "PRIM": self._prim,
@@ -374,7 +377,7 @@ class MazeGenerator:
             self._kruskal()
             break
 
-        if not self._config.perfect:
+        if not self.config.perfect:
             self._imperfect()
 
     def solve(self) -> bool:
@@ -406,3 +409,19 @@ class MazeGenerator:
             The maze grid represented as hexadecimal wall values.
         """
         return self._grid
+
+    def get_height(self) -> int:
+        """Return the height attribute
+
+        Returns:
+            The maze height
+        """
+        return self._height
+
+    def get_width(self) -> int:
+        """Return the width attribute
+
+        Returns:
+            The maze width
+        """
+        return self._width
