@@ -193,6 +193,30 @@ class MazeGenerator:
 
         return []
 
+    def _imperfect(self) -> None:
+        walls: list[tuple[tuple[int, int], tuple[int, int], MagicValues]] = []
+        def open
+
+        for y in range(self._height):
+            for x in range(self._width):
+                if (x, y) in self._blocked:
+                    continue
+                if self._width > (x + 1) and (x + 1, y) not in self._blocked:
+                    if self._grid[y][x] & MagicValues.EAST.value:
+                        walls.append(((x, y), (x + 1, y), MagicValues.EAST))
+                if self._height > (y + 1) and (x, y + 1) not in self._blocked:
+                    if self._grid[y][x] & MagicValues.SOUTH.value:
+                        walls.append(((x, y), (x, y + 1), MagicValues.SOUTH))
+
+        totalcandidates = self._height * self._width // 10
+        random.shuffle(walls)
+        selected_walls = walls[:totalcandidates]
+
+        for wall in selected_walls:
+            cell1, cell2, direct = wall
+            self._grid[cell1[1]][cell1[0]] &= ~direct.value
+            self._grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
+
     def _output_res(self, path: list[str]) -> None:
         output = Path(self._config.output_file)
         with output.open(mode="w", encoding="utf-8") as f:
@@ -217,6 +241,7 @@ class MazeGenerator:
             self._kruskal()
         elif self._config.algorithm == "prim":
             self._prim()
+            self._imperfect()
 
     def solve(self) -> bool:
         path: list[str] = self._bfs()
