@@ -194,28 +194,58 @@ class MazeGenerator:
         return []
 
     def _imperfect(self) -> None:
+        def open_count(cell: tuple[int, int]) -> int:
+            px, py = cell
+            count = 0
+            for direction, (dx, dy) in DIRECTIONS.items():
+                nx = dx + px
+                ny = dy + py
+                if nx < 0 or nx >= self._width:
+                    continue
+                if ny < 0 or ny >= self._height:
+                    continue
+                if (nx, ny) in self._blocked:
+                    continue
+                if not (self._grid[py][px] & direction.value):
+                    count += 1
+            return count
+
         walls: list[tuple[tuple[int, int], tuple[int, int], MagicValues]] = []
-        def open
+        priority_walls: list[tuple[tuple[int, int], tuple[int, int], MagicValues]] = []
 
         for y in range(self._height):
             for x in range(self._width):
                 if (x, y) in self._blocked:
                     continue
-                if self._width > (x + 1) and (x + 1, y) not in self._blocked:
-                    if self._grid[y][x] & MagicValues.EAST.value:
-                        walls.append(((x, y), (x + 1, y), MagicValues.EAST))
-                if self._height > (y + 1) and (x, y + 1) not in self._blocked:
-                    if self._grid[y][x] & MagicValues.SOUTH.value:
-                        walls.append(((x, y), (x, y + 1), MagicValues.SOUTH))
+                for direction, (dx, dy), otherdir in (
+                    (MagicValues.EAST, (1, 0), (x + 1, y)),
+                    (MagicValues.SOUTH, (0, 1), (x, y + 1)),
+                ):
+                    nx, ny = otherdir
+                    if not (0 <= nx < self._width and 0 <= ny < self._height):
+                        continue
+                    if (nx, ny) in self._blocked:
+                        continue
+                    if not (self._grid[y][x] & direction.value):
+                        continue
 
-        totalcandidates = self._height * self._width // 10
-        random.shuffle(walls)
-        selected_walls = walls[:totalcandidates]
+                    wall = (x, y), otherdir, direction
+                    if open_count((x, y)) == 1 or open_count((nx, ny)) == 1:
+                        priority_walls.append(wall)
+                    else:
+                        walls.append(wall)
 
-        for wall in selected_walls:
+        if not priority_walls:
+            return
+
+        random.shuffle(priority_walls)
+        for wall in priority_walls:
             cell1, cell2, direct = wall
-            self._grid[cell1[1]][cell1[0]] &= ~direct.value
-            self._grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
+            if open_count(cell1) == 1 or open_count(cell2) == 1:
+                self._grid[cell1[1]][cell1[0]] &= ~direct.value
+                self._grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
+
+        return
 
     def _output_res(self, path: list[str]) -> None:
         output = Path(self._config.output_file)
