@@ -12,12 +12,25 @@ from .magic_values import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from mazegen import MazeConfig
 from collections import deque
 
 
 class MazeGenerator:
+    """Generate, solve, and expose a configurable maze.
+
+    The generator supports multiple maze-generation algorithms and can
+    produce either perfect or imperfect mazes according to the configuration.
+    """
     def __init__(self, config: MazeConfig) -> None:
+        """Initialize a maze generator from the supplied configuration.
+
+        Args:
+            config: Configuration containing maze dimensions, entry and exit,
+                generation options, and output settings.
+        """
         self._config: MazeConfig = config
         self._width: int = config.width
         self._height: int = config.height
@@ -28,6 +41,11 @@ class MazeGenerator:
         self._solution: list[str] = []
 
     def _create_grid(self) -> None:
+        """Create the initial closed grid and apply the 42 pattern.
+
+        The outer border is marked as blocked before the 42 pattern is
+        inserted into the grid.
+        """
         n: int = MagicValues.CLOSED.value
         for y in range(self._height):
             row: list[int] = []
@@ -38,9 +56,15 @@ class MazeGenerator:
             self._grid.append(row)
         self._42_pattern()
 
-    def _centered_origin(
-        self, pattern: list[tuple[int, int]]
-    ) -> tuple[int, int]:
+    def _centered_origin(self, pattern: list[tuple[int, int]]) -> tuple[int, int]:
+        """Calculate the origin needed to center a pattern in the maze.
+
+        Args:
+            pattern: Relative coordinates describing the pattern.
+
+        Returns:
+            The x and y coordinates of the pattern origin.
+        """
         xs: list[int] = [dx for dx, _ in pattern]
         ys: list[int] = [dy for _, dy in pattern]
 
@@ -53,7 +77,17 @@ class MazeGenerator:
         return center_x, center_y
 
     def _42_pattern(self) -> None:
+        """Place the 42 pattern at the center when the maze is large enough.
+
+        A warning is printed when the maze dimensions are too small for the
+        required pattern.
+        """
         def draw(pattern: list[tuple[int, int]]) -> None:
+            """Draw one 42-pattern component on the maze grid.
+
+            Args:
+                pattern: Relative coordinates describing the component.
+            """
             center_x, center_y = self._centered_origin(pattern)
             for dx, dy in pattern:
                 x, y = center_x + dx, center_y + dy
@@ -70,6 +104,11 @@ class MazeGenerator:
                 print("Warning, maze too small for the 42 Pattern!")
 
     def _dfs(self) -> None:
+        """Generate a maze using depth-first search backtracking.
+
+        The algorithm starts at the configured entry and opens walls while
+        visiting unvisited neighbouring cells.
+        """
         visited: set[tuple[int, int]] = {self._config.entry}
         stack: list[tuple[int, int]] = [self._config.entry]
         while stack:
@@ -94,6 +133,11 @@ class MazeGenerator:
             visited.add((nnx, nny))
 
     def _kruskal(self) -> None:
+        """Generate a maze using Kruskal's minimum spanning tree algorithm.
+
+        Candidate walls are shuffled and removed when doing so joins two
+        previously disconnected cell sets.
+        """
         daddy: dict[tuple[int, int], tuple[int, int]] = {}
         walls: list[tuple[tuple[int, int], tuple[int, int], MagicValues]] = []
 
@@ -109,11 +153,28 @@ class MazeGenerator:
                     walls.append(((x, y), (x, y + 1), MagicValues.SOUTH))
 
         def find(cell: tuple[int, int]) -> tuple[int, int]:
+            """Find the representative of a cell's disjoint-set group.
+
+            Args:
+                cell: Cell whose set representative is requested.
+
+            Returns:
+                The representative cell of the set.
+            """
             if daddy[cell] != cell:
                 daddy[cell] = find(daddy[cell])
             return daddy[cell]
 
         def union(cell1: tuple[int, int], cell2: tuple[int, int]) -> bool:
+            """Join two disjoint cell sets when they are different.
+
+            Args:
+                cell1: First cell to join.
+                cell2: Second cell to join.
+
+            Returns:
+                True when the two sets were joined, otherwise False.
+            """
             source1: tuple[int, int] = find(cell1)
             source2: tuple[int, int] = find(cell2)
 
@@ -130,12 +191,20 @@ class MazeGenerator:
                 self._grid[cell2[1]][cell2[0]] &= ~OPPOSITE[direct.value]
 
     def _prim(self) -> None:
+        """Generate a maze using randomized Prim's algorithm.
+
+        The algorithm grows the maze from the configured entry by selecting
+        random walls from the current frontier.
+        """
         in_maze: set[tuple[int, int]] = {self._config.entry}
-        frontier: list[
-            tuple[tuple[int, int], MagicValues, tuple[int, int]]
-        ] = []
+        frontier: list[tuple[tuple[int, int], MagicValues, tuple[int, int]]] = []
 
         def get_walls(cell: tuple[int, int]) -> None:
+            """Add eligible neighbouring walls to the frontier.
+
+            Args:
+                cell: Cell whose neighbouring walls should be considered.
+            """
             for direction, (dx, dy) in DIRECTIONS.items():
                 nx, ny = cell[0] + dx, cell[1] + dy
                 if (nx, ny) in self._blocked or (nx, ny) in in_maze:
@@ -159,9 +228,13 @@ class MazeGenerator:
             get_walls(neighbour)
 
     def _bfs(self) -> list[str]:
-        queque: deque[tuple[tuple[int, int], list[str]]] = deque(
-            [(self._config.entry, [])]
-        )
+        """Find the shortest path from the entry to the exit using BFS.
+
+        Returns:
+            A list of direction letters representing the shortest path, or
+            an empty list when the exit cannot be reached.
+        """
+        queque: deque[tuple[tuple[int, int], list[str]]] = deque([(self._config.entry, [])])
 
         walls_visited: set[tuple[int, int]] = {self._config.entry}
 
@@ -194,7 +267,20 @@ class MazeGenerator:
         return []
 
     def _imperfect(self) -> None:
+        """Open selected walls to create routes in a non-perfect maze.
+
+        Walls adjacent to cells with only one open side are prioritized in
+        order to reduce dead ends while preserving maze connectivity.
+        """
         def open_count(cell: tuple[int, int]) -> int:
+            """Count the open passages connected to a cell.
+
+            Args:
+                cell: Cell whose open neighbouring passages are counted.
+
+            Returns:
+                The number of open passages from the cell.
+            """
             px, py = cell
             count = 0
             for direction, (dx, dy) in DIRECTIONS.items():
@@ -248,10 +334,16 @@ class MazeGenerator:
         return
 
     def _output_res(self, path: list[str]) -> None:
+        """Write the generated maze, coordinates, and solution to a file.
+
+        Args:
+            path: Direction letters forming the shortest path from entry to
+                exit.
+        """
         output = Path(self._config.output_file)
         with output.open(mode="w", encoding="utf-8") as f:
-            for row in self._grid[1:-1]:
-                for num in row[1:-1]:
+            for row in self._grid:
+                for num in row:
                     f.write(hex(num)[-1].upper())
                 f.write("\n")
             f.write("\n")
@@ -263,17 +355,34 @@ class MazeGenerator:
             f.write("\n")
 
     def generate(self) -> None:
-        if self._config.perfect:
+        """Generate the maze using the configured algorithm.
+
+        The selected algorithm is executed first. If the maze is configured
+        as non-perfect, additional walls are opened to create loops and
+        reduce dead ends.
+        """
+        name: str | None = self._config.algorithm
+        algos: dict[str, Callable] = {
+            "DFS": self._dfs,
+            "KRUSKAL": self._kruskal,
+            "PRIM": self._prim,
+        }
+        for algo, func in algos.items():
+            if algo == name:
+                func()
+                break
             self._kruskal()
-        elif self._config.algorithm == "dfs":
-            self._dfs()
-        elif self._config.algorithm == "kruskal":
-            self._kruskal()
-        elif self._config.algorithm == "prim":
-            self._prim()
+            break
+
+        if not self._config.perfect:
             self._imperfect()
 
     def solve(self) -> bool:
+        """Solve the generated maze and write the solution to the output file.
+
+        Returns:
+            True when a path from entry to exit is found, otherwise False.
+        """
         path: list[str] = self._bfs()
         if not path:
             print("Unable to find a solution!\n")
@@ -283,7 +392,17 @@ class MazeGenerator:
         return True
 
     def get_solution(self) -> list[str]:
+        """Return the most recently computed solution path.
+
+        Returns:
+            The solution as a list of direction letters.
+        """
         return self._solution
 
     def get_grid(self) -> list[list[int]]:
+        """Return the current internal maze grid.
+
+        Returns:
+            The maze grid represented as hexadecimal wall values.
+        """
         return self._grid

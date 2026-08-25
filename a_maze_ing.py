@@ -4,8 +4,7 @@ from platform import python_version
 
 from pydantic import ValidationError
 
-from mazegen import Maze_visualizer
-from mazegen import MazeGenerator
+from mazegen import Maze_visualizer, MazeGenerator
 from parsing import parser
 
 MAX_ARGS: int = 2
@@ -19,16 +18,16 @@ def main() -> None:
         config = parser(sys.argv[1])
         maze = MazeGenerator(config)
         maze.generate()
-        if not maze.solve():
-            sys.exit(1)
-        visu = Maze_visualizer(maze)
-        visu.render()
     except ValidationError as e:
         error = e.errors()[0]["msg"]
         msg: str = error.removeprefix("Value error, ")
         sys.stderr.write(f"{msg}\n")
     except (FileNotFoundError, SyntaxError, ValueError) as e:
         sys.stderr.write(f"Error: {e}\n")
+    if not maze.solve():
+        sys.exit(1)
+    visu = Maze_visualizer(maze)
+    visu.render()
 
 
 if __name__ == "__main__":

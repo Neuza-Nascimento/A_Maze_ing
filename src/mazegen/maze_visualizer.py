@@ -199,17 +199,25 @@ class Maze_visualizer:
         title_x = self.maze_width // 2 - (len(title) * 10) // 2
         title_y = self.maze_height + 30
         self.mlx.mlx_string_put(
-            self.mlx_ptr, self.win_ptr, title_x, title_y, 0xFFD700, title
+            self.mlx_ptr, self.win_ptr, title_x, title_y, self.current_colors["TEXT_COLOR"], title
         )
 
-        y_pos = self.maze_height + 70
+        y_pos = self.maze_height + 50
         self.mlx.mlx_string_put(
             self.mlx_ptr,
             self.win_ptr,
-            10,
+            self.maze_width // 2 - (len("1:new maze  2:show path") * 10) // 2,
             y_pos,
             self.current_colors["TEXT_COLOR"],
-            "1:new maze  2:show path  3:random colour  ESC:exit",
+            "1:new maze  2:show path",
+        )
+        self.mlx.mlx_string_put(
+            self.mlx_ptr,
+            self.win_ptr,
+            self.maze_width // 2 - (len("3:random colour  ESC:exit") * 10) // 2,
+            y_pos + 20,
+            self.current_colors["TEXT_COLOR"],
+            "3:random colour  ESC:exit",
         )
 
     def full_redraw(self) -> None:
