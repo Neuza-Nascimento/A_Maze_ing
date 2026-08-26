@@ -28,6 +28,10 @@ class MazeVisualizer:
         self.path_step: int = 0
         self.is_animating: bool = False
 
+    @staticmethod
+    def f(r: tuple[int, int], g: tuple[int, int], b: tuple[int, int]) -> int:
+        return (0xFF << 24) | (r << 16) | (g << 8) | b
+
     def random_color(   # PODE SER UM METODO ESTATICO E OS ARGUMENTOS PODEM SER TUPLAS
         self, min_r: int, max_r: int, min_g: int, max_g: int, min_b: int, max_b: int
     ) -> int:
@@ -214,7 +218,7 @@ class MazeVisualizer:
         self._draw_maze(0)
         self.draw_menu()
 
-        def key_handler(keycode: int, _param: None) -> None:  # DEFINIR TIPO
+        def key_handler(keycode: int, _param: None) -> None:
 
             if keycode == Key.ONE.value:  # '1'
                 self.is_animating = False
@@ -247,7 +251,7 @@ class MazeVisualizer:
             elif keycode == Key.ESC.value:  # ESC
                 self.mlx.mlx_loop_exit(self.mlx_ptr)
 
-        def close_window(_empty: None) -> None:    # DEFINIR TIPO
+        def close_window(_empty: None) -> None:
             self.mlx.mlx_loop_exit(self.mlx_ptr)
 
         self.mlx.mlx_loop_hook(self.mlx_ptr, self.animate_path, None)

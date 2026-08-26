@@ -22,8 +22,10 @@ def main() -> None:
         error = e.errors()[0]["msg"]
         msg: str = error.removeprefix("Value error, ")
         sys.stderr.write(f"{msg}\n")
+        sys.exit(1)
     except (FileNotFoundError, SyntaxError, ValueError) as e:
         sys.stderr.write(f"Error: {e}\n")
+        sys.exit(1)
     if not maze.solve():
         sys.exit(1)
     visu = MazeVisualizer(maze)
