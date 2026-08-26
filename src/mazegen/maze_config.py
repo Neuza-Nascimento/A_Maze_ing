@@ -9,21 +9,9 @@ from .magic_values import DIMENSIONS, MIN_8
 
 
 class MazeConfig(BaseModel):
-    """_summary_.
+    """Maze Configuration Model.
 
-    Args:
-        BaseModel (_type_): _description_
-
-    Returns:
-        _type_: _description_
-
-    Raises:
-        ValueError: _description_
-        ValueError: _description_
-        ValueError: _description_
-        ValueError: _description_
-
-
+    Holds all the key=value pairs found in the config file.
     """
 
     width: int = Field(gt=0)

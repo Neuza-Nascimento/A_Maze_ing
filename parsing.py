@@ -1,7 +1,6 @@
 """Parsing configuration values for the maze generator."""
 
 from pathlib import Path
-
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -28,6 +27,11 @@ def check_width(width: str) -> int:
 
     Returns:
         The validated width as an integer.
+
+    Raises:
+        ValueError: If width is not a integer
+        ValueError: If width is smaller or equal than 0
+
     """
     try:
         w = int(width)
@@ -50,6 +54,11 @@ def check_height(height: str) -> int:
 
     Returns:
         The validated height as an integer.
+
+    Raises:
+        ValueError: If height is not a integer
+        ValueError: If height is smaller or equal than 0
+
     """
     try:
         h = int(height)
@@ -72,6 +81,11 @@ def check_entry(entry_point: str) -> tuple[int, int]:
 
     Returns:
         The entry coordinates as an integer tuple.
+
+    Raises:
+        ValueError: if Entry is not format (X,Y)
+        ValueError: if X or Y of Entry are not Integers
+
     """
     err: str
 
@@ -98,6 +112,11 @@ def check_exit(exit_point: str) -> tuple[int, int]:
 
     Returns:
         The exit coordinates as an integer tuple.
+
+    Raises:
+        ValueError: if Exit is not format (X,Y)
+        ValueError: if X or Y of Exit are not Integers
+
     """
     err: str
 
@@ -124,6 +143,11 @@ def check_file(file: str) -> str:
 
     Returns:
         The validated output filename.
+
+    Raises:
+        ValueError: If OUTPUT_FILE value is a directory
+        ValueError: If OUTPUT_FILE value is a path that doesnt exists
+
     """
     path = Path(file)
 
@@ -152,6 +176,10 @@ def check_perfect(perfect: str) -> bool:
 
     Returns:
         True or False according to the configuration value.
+
+    Raises:
+        ValueError: If PERFECT value not True/TRUE or False/FALSE
+
     """
     if perfect in {"True", "TRUE"}:
         return True
@@ -171,6 +199,11 @@ def check_seed(seed: str) -> int:
 
     Returns:
         The validated seed as an integer.
+
+    Raises:
+        ValueError: If seed is not a integer
+        ValueError: If seed is smaller than 0
+
     """
     try:
         sed = int(seed)
@@ -193,6 +226,10 @@ def check_algo(algo: str) -> str:
 
     Returns:
         The validated algorithm name.
+
+    Raises:
+        ValueError: If picked algorithm is not a supported option
+
     """
     for c in algo:
         if c.isspace() or c.isnumeric() or c.isdecimal() or c in {"-", "+"}:
@@ -232,6 +269,7 @@ def parser(filename: str) -> MazeConfig:
         SyntaxError: If a configuration line does not contain an equals sign.
         ValueError: If a required key is missing or a configuration value
             fails validation.
+
     """
     file = Path(filename)
 
@@ -273,4 +311,3 @@ def parser(filename: str) -> MazeConfig:
             raise ValueError(str(e)) from e
 
     return MazeConfig(**config)
-
