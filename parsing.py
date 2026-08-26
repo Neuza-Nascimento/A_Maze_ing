@@ -273,4 +273,3 @@ def parser(filename: str) -> MazeConfig:
             raise ValueError(str(e)) from e
 
     return MazeConfig(**config)
-
