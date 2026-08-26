@@ -1,4 +1,11 @@
-"""Maze Configuration."""
+"""Maze Configuration.
+
+The maze_configuration module grants access to the MazeConfig class,
+that is later used by the MazeGenerator class as its only parameter.
+
+It requires that a width, height, entry, exit, output_file and perfect
+are passed to it, being only the seed and algorithm optional to it.
+"""
 
 import secrets
 from typing import Self

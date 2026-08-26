@@ -1,4 +1,26 @@
-"""Maze Generator."""
+"""Maze Generator.
+
+The maze_generator module grants access to the MazeGenerator Class,
+with it the, a imperfect or perfect maze can be created if specified,
+by the provided algorithms such as Depth First Search, Kruskal and Prim's
+and then be solved by the Breadth First Search.
+
+To instanciate a MazeGenerator Object, all it requires is a MazeConfig object, that holds
+the maze configurations such as:
+    Width,
+    Height,
+    Entry,
+    Exit,
+    Output_File,
+    Perfect,
+    Seed,
+    Algorithm
+
+Being Seed and Algorithm both Optional configurations.
+
+To then Generate, and later Solve the Maze, we have the generate() method and the solve() method
+that require no arguments.
+"""
 
 import random
 from pathlib import Path
