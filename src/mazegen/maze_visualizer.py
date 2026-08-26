@@ -31,27 +31,22 @@ class MazeVisualizer:
         self.is_animating: bool = False
 
     @staticmethod
-    def f(r: tuple[int, int], g: tuple[int, int], b: tuple[int, int]) -> int:
-        return (0xFF << 24) | (r << 16) | (g << 8) | b
-
-    def random_color(   # PODE SER UM METODO ESTATICO E OS ARGUMENTOS PODEM SER TUPLAS
-        self, min_r: int, max_r: int, min_g: int, max_g: int, min_b: int, max_b: int
-    ) -> int:
-        r = random.randint(min_r, max_r)
-        g = random.randint(min_g, max_g)
-        b = random.randint(min_b, max_b)
+    def random_color(r: tuple[int, int], g: tuple[int, int], b: tuple[int, int]) -> int:
+        r = random.randint(r[0], r[1])
+        g = random.randint(g[0], g[1])
+        b = random.randint(b[0], b[1])
         return (0xFF << 24) | (r << 16) | (g << 8) | b
 
     def generate_color_palette(self) -> dict[str, int]:
         return {
-            "WALL_COLOR": self.random_color(10, 50, 10, 50, 10, 50),
-            "PATH_COLOR": self.random_color(100, 200, 150, 255, 100, 200),
-            "ENTRY_COLOR": self.random_color(50, 150, 150, 255, 80, 180),
-            "EXIT_COLOR": self.random_color(200, 255, 50, 150, 50, 150),
-            "BORDER_COLOR": self.random_color(60, 120, 60, 120, 60, 120),
-            "CELL_COLOR": self.random_color(200, 255, 200, 255, 200, 255),
-            "TEXT_COLOR": self.random_color(10, 50, 10, 50, 10, 50),
-            "COLOR_15": self.random_color(200, 255, 180, 240, 50, 150),
+            "WALL_COLOR": self.random_color((10, 509), (10, 50), (10, 50)),
+            "PATH_COLOR": self.random_color((100, 200), (150, 255), (100, 200)),
+            "ENTRY_COLOR": self.random_color((50, 150), (150, 255), (80, 180)),
+            "EXIT_COLOR": self.random_color((200, 255), (50, 150), (50, 150)),
+            "BORDER_COLOR": self.random_color((60, 120), (60, 120), (60, 120)),
+            "CELL_COLOR": self.random_color((200, 255), (200, 255), (200, 255)),
+            "TEXT_COLOR": self.random_color((10, 50), (10, 50), (10, 50)),
+            "COLOR_15": self.random_color((200, 255), (180, 240), (50, 150)),
         }
 
     def apply_new_theme(self) -> None:
@@ -85,20 +80,25 @@ class MazeVisualizer:
         self._draw_maze(self.path_step)
         self.draw_menu()
 
+    @staticmethod
+    def _paint_rect(data, size_line, x_start, y_start, width, height, color) -> None:
+        for y in range(height):
+            for x in range(width):
+                px = x_start + x
+                py = y_start + y
+                pos = py * size_line + px * 4
+                data[pos: pos + 4] = color.to_bytes(4, "little")
+
     # FUNÇÃO COMPLEXA DMS
     def _draw_maze(self, show_path_step: int = 0) -> None:
 
-        path = self.build_path_cells()
-
+        path: list[tuple[int, int]] = self.build_path_cells()
         image = self.mlx.mlx_new_image(self.mlx_ptr, self.maze_width, self.window_height)
         data, _bpp, size_line, _endian = self.mlx.mlx_get_data_addr(image)
-        bytes_per_pixel = 4
-        current_colors = self.current_colors
+        current_colors: dict[str, int] = self.current_colors
 
-        for y in range(self.window_height):
-            for x in range(self.maze_width):
-                pos = y * size_line + x * bytes_per_pixel
-                data[pos: pos + 4] = current_colors["CELL_COLOR"].to_bytes(4, "little")
+        self._paint_rect(data, size_line, 0, 0, self.maze_width,
+                         self.window_height, current_colors["CELL_COLOR"])
 
         grid = self.gen.get_grid()
         for row in range(len(grid)):
@@ -112,75 +112,43 @@ class MazeVisualizer:
                     color = current_colors["ENTRY_COLOR"]
                 elif (col, row) == self.gen.config.exit:
                     color = current_colors["EXIT_COLOR"]
-                elif value == MagicValues.CLOSED.value:  # 15
+                elif value == MagicValues.CLOSED.value:
                     color = current_colors["COLOR_15"]
 
                 if color is not None:
-                    for y in range(self.cell_size):
-                        for x in range(self.cell_size):
-                            px = x_start + x
-                            py = y_start + y
-                            pos = py * size_line + px * bytes_per_pixel
-                            data[pos: pos + 4] = color.to_bytes(4, "little")
+                    self._paint_rect(data, size_line, x_start, y_start,
+                                     self.cell_size, self.cell_size, color)
+
+                wall_color = current_colors["WALL_COLOR"]
 
                 if value & MagicValues.NORTH.value:
-                    for x in range(self.cell_size):
-                        for y in range(self.border_size):
-                            px = x_start + x
-                            py = y_start + y
-                            pos = py * size_line + px * bytes_per_pixel
-                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(4, "little")
+                    self._paint_rect(data, size_line, x_start, y_start,
+                                     self.cell_size, self.border_size, wall_color)
 
                 if value & MagicValues.SOUTH.value:
-                    for x in range(self.cell_size):
-                        for y in range(self.cell_size - self.border_size, self.cell_size):
-                            px = x_start + x
-                            py = y_start + y
-                            pos = py * size_line + px * bytes_per_pixel
-                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(4, "little")
+                    self._paint_rect(data, size_line, x_start,
+                                     y_start + self.cell_size - self.border_size,
+                                     self.cell_size, self.border_size, wall_color)
 
                 if value & MagicValues.WEST.value:
-                    for y in range(self.cell_size):
-                        for x in range(self.border_size):
-                            px = x_start + x
-                            py = y_start + y
-                            pos = py * size_line + px * bytes_per_pixel
-                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(4, "little")
+                    self._paint_rect(data, size_line, x_start, y_start,
+                                     self.border_size, self.cell_size, wall_color)
 
                 if value & MagicValues.EAST.value:
-                    for y in range(self.cell_size):
-                        for x in range(self.cell_size - self.border_size, self.cell_size):
-                            px = x_start + x
-                            py = y_start + y
-                            pos = py * size_line + px * bytes_per_pixel
-                            data[pos: pos + 4] = current_colors["WALL_COLOR"].to_bytes(4, "little")
+                    self._paint_rect(data, size_line,
+                                     x_start + self.cell_size - self.border_size, y_start,
+                                     self.border_size, self.cell_size, wall_color)
 
                 if show_path_step > 0 and (row, col) in path:
                     idx = path.index((row, col))
                     if idx < show_path_step:
-                        path_color = current_colors["PATH_COLOR"]
 
                         inset = 10
                         mini_size = self.cell_size - inset
                         offset = inset // 2
 
-                        for y in range(mini_size):
-                            for x in range(mini_size):
-                                px = x_start + offset + x
-                                py = y_start + offset + y
-                                pos = py * size_line + px * bytes_per_pixel
-
-                                is_border = (
-                                    x < self.border_size
-                                    or x >= mini_size - self.border_size
-                                    or y < self.border_size
-                                    or y >= mini_size - self.border_size
-                                )
-
-                                if is_border:
-                                    data[pos: pos + 4] = path_color.to_bytes(4, "little")
-                                else:
-                                    data[pos: pos + 4] = path_color.to_bytes(4, "little")
+                        self._paint_rect(data, size_line, x_start + offset, y_start + offset,
+                                         mini_size, mini_size, current_colors["PATH_COLOR"])
 
         self.mlx.mlx_put_image_to_window(self.mlx_ptr, self.win_ptr, image, 0, 0)
 
@@ -195,19 +163,16 @@ class MazeVisualizer:
 
         y_pos = self.maze_height + 50
         self.mlx.mlx_string_put(
-            self.mlx_ptr,
-            self.win_ptr,
+            self.mlx_ptr, self.win_ptr,
             self.maze_width // 2 - (len("1:new maze  2:show path") * 10) // 2,
-            y_pos,
-            self.current_colors["TEXT_COLOR"],
+            y_pos, self.current_colors["TEXT_COLOR"],
             "1:new maze  2:show path",
         )
+
         self.mlx.mlx_string_put(
-            self.mlx_ptr,
-            self.win_ptr,
+            self.mlx_ptr, self.win_ptr,
             self.maze_width // 2 - (len("3:random colour  ESC:exit") * 10) // 2,
-            y_pos + 20,
-            self.current_colors["TEXT_COLOR"],
+            y_pos + 20, self.current_colors["TEXT_COLOR"],
             "3:random colour  ESC:exit",
         )
 
