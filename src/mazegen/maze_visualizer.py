@@ -143,7 +143,7 @@ class MazeVisualizer:
                 px = x_start + x
                 py = y_start + y
                 pos = py * size_line + px * 4
-                data[pos : pos + 4] = color.to_bytes(4, "little")
+                data[pos: pos + 4] = color.to_bytes(4, "little")
 
     def _draw_maze(self, show_path_step: int = 0) -> None:
         """Draw maze.
