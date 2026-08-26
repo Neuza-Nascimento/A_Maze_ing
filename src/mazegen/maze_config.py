@@ -1,3 +1,5 @@
+"""Maze Configuration."""
+
 import secrets
 from typing import Self
 
@@ -7,6 +9,23 @@ from .magic_values import DIMENSIONS, MIN_8
 
 
 class MazeConfig(BaseModel):
+    """_summary_.
+
+    Args:
+        BaseModel (_type_): _description_
+
+    Returns:
+        _type_: _description_
+
+    Raises:
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+
+
+    """
+
     width: int = Field(gt=0)
     height: int = Field(gt=0)
     entry: tuple[int, int]
@@ -18,15 +37,31 @@ class MazeConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_config(self) -> Self:
+        """Validate Configuration.
+
+        Whether the configuration for ENTRY or EXIT are between
+        the specified width and height range.
+
+        Returns:
+            Self: PYDANTIC REQUIRES FUNCTIONS WITH THE MODEL_VALIDATOR DECORATOR
+                TO RETURN SELF
+
+        Raises:
+            ValueError: _description_
+            ValueError: _description_
+            ValueError: _description_
+            ValueError: _description_
+
+        """
         if self.entry == self.exit:
             equal_points: str = "EXIT and ENTRY must not have equal points!"
             raise ValueError(equal_points)
         sx, sy = self.entry
-        if sx <= 0 or sx >= self.width - 1 or sy <= 0 or sy >= self.height - 1:
+        if sx >= self.width - 1 or sy >= self.height - 1:
             enrr: str = f"Entry (X={sx},Y={sy}) out of bounds!"
             raise ValueError(enrr)
         ex, ey = self.exit
-        if ex <= 0 or ex >= self.width - 1 or ey <= 0 or ey >= self.height - 1:
+        if ex >= self.width - 1 or ey >= self.height - 1:
             exrr: str = f"Exit (X={ex},Y={ey}) out of bounds!"
             raise ValueError(exrr)
 
@@ -34,13 +69,23 @@ class MazeConfig(BaseModel):
             if (MIN_8 - 1) in {self.width, self.height}:
                 return self
             if lo <= self.height <= hi or lo <= self.width <= hi:
-                check: bool = self.__something(pattern)
+                check: bool = self.__check_pattern(pattern)
                 if not check:
                     in_pattern: str = "ENTRY or EXIT inside Pattern 42"
                     raise ValueError(in_pattern)
         return self
 
-    def __something(self, pattern: list[tuple[int, int]]) -> bool:
+    def __check_pattern(self, pattern: list[tuple[int, int]]) -> bool:
+        """Check whether the Entry or Exit are placed inside the 42 pattern.
+
+        Args:
+            pattern (list[tuple[int, int]]): The 42 pattern to be used
+
+        Returns:
+            bool: True if entry or exit points are not inside the 42 pattern
+                False otherwise
+
+        """
         xs: list[int] = [dx for dx, _ in pattern]
         ys: list[int] = [dy for _, dy in pattern]
 

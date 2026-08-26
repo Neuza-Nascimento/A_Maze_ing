@@ -1,3 +1,5 @@
+"""Maze Generator."""
+
 import random
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -29,8 +31,9 @@ class MazeGenerator:
         """Initialize a maze generator from the supplied configuration.
 
         Args:
-            config: Configuration containing maze dimensions, entry and exit,
+            config (MazeConfig): Configuration containing maze dimensions, entry and exit,
                 generation options, and output settings.
+
         """
         self.config: MazeConfig = config
         self._width: int = config.width
@@ -57,10 +60,11 @@ class MazeGenerator:
         """Calculate the origin needed to center a pattern in the maze.
 
         Args:
-            pattern: Relative coordinates describing the pattern.
+            pattern (list[tuple[int, int]]): Relative coordinates describing the pattern.
 
         Returns:
-            The x and y coordinates of the pattern origin.
+            tuple[int, int]: The x and y coordinates of the pattern origin.
+
         """
         xs: list[int] = [dx for dx, _ in pattern]
         ys: list[int] = [dy for _, dy in pattern]
@@ -84,7 +88,8 @@ class MazeGenerator:
             """Draw one 42-pattern component on the maze grid.
 
             Args:
-                pattern: Relative coordinates describing the component.
+                pattern (list[tuple[int, int]]): Relative coordinates describing the component.
+
             """
             center_x, center_y = self._centered_origin(pattern)
             for dx, dy in pattern:
@@ -154,10 +159,11 @@ class MazeGenerator:
             """Find the representative of a cell's disjoint-set group.
 
             Args:
-                cell: Cell whose set representative is requested.
+                cell (tuple[int, int]): Cell whose set representative is requested.
 
             Returns:
-                The representative cell of the set.
+                tuple[int, int]: The representative cell of the set.
+
             """
             if daddy[cell] != cell:
                 daddy[cell] = find(daddy[cell])
@@ -167,11 +173,12 @@ class MazeGenerator:
             """Join two disjoint cell sets when they are different.
 
             Args:
-                cell1: First cell to join.
-                cell2: Second cell to join.
+                cell1 (tuple[int, int]): First cell to join.
+                cell2 (tuple[int, int]): Second cell to join.
 
             Returns:
-                True when the two sets were joined, otherwise False.
+                bool: True when the two sets were joined, otherwise False.
+
             """
             source1: tuple[int, int] = find(cell1)
             source2: tuple[int, int] = find(cell2)
@@ -201,7 +208,8 @@ class MazeGenerator:
             """Add eligible neighbouring walls to the frontier.
 
             Args:
-                cell: Cell whose neighbouring walls should be considered.
+                cell (tuple[int, int]): Cell whose neighbouring walls should be considered.
+
             """
             for direction, (dx, dy) in DIRECTIONS.items():
                 nx, ny = cell[0] + dx, cell[1] + dy
@@ -229,8 +237,9 @@ class MazeGenerator:
         """Find the shortest path from the entry to the exit using BFS.
 
         Returns:
-            A list of direction letters representing the shortest path, or
+            list[str]: A list of direction letters representing the shortest path, or
             an empty list when the exit cannot be reached.
+
         """
         queque: deque[tuple[tuple[int, int], list[str]]] = deque([(self.config.entry, [])])
 
@@ -275,10 +284,11 @@ class MazeGenerator:
             """Count the open passages connected to a cell.
 
             Args:
-                cell: Cell whose open neighbouring passages are counted.
+                cell (tuple[int, int]): Cell whose open neighbouring passages are counted.
 
             Returns:
-                The number of open passages from the cell.
+                int: The number of open passages from the cell.
+
             """
             px, py = cell
             count = 0
@@ -338,6 +348,7 @@ class MazeGenerator:
         Args:
             path: Direction letters forming the shortest path from entry to
                 exit.
+
         """
         output = Path(self.config.output_file)
         with output.open(mode="w", encoding="utf-8") as f:
@@ -380,7 +391,8 @@ class MazeGenerator:
         """Solve the generated maze and write the solution to the output file.
 
         Returns:
-            True when a path from entry to exit is found, otherwise False.
+            bool: True when a path from entry to exit is found, otherwise False.
+
         """
         path: list[str] = self._bfs()
         if not path:
@@ -394,7 +406,8 @@ class MazeGenerator:
         """Return the most recently computed solution path.
 
         Returns:
-            The solution as a list of direction letters.
+            list[str]: The solution as a list of direction letters.
+
         """
         return self._solution
 
@@ -402,22 +415,25 @@ class MazeGenerator:
         """Return the current internal maze grid.
 
         Returns:
-            The maze grid represented as hexadecimal wall values.
+            list[list[int]]: The maze grid represented as hexadecimal wall values.
+
         """
         return self._grid
 
     def get_height(self) -> int:
-        """Return the height attribute
+        """Return the height attribute.
 
         Returns:
-            The maze height
+            int: The maze height
+
         """
         return self._height
 
     def get_width(self) -> int:
-        """Return the width attribute
+        """Return the width attribute.
 
         Returns:
-            The maze width
+            int: The maze width
+
         """
         return self._width
