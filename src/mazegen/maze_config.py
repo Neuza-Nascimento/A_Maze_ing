@@ -47,10 +47,10 @@ class MazeConfig(BaseModel):
                 TO RETURN SELF
 
         Raises:
-            ValueError: _description_
-            ValueError: _description_
-            ValueError: _description_
-            ValueError: _description_
+            ValueError: Entry and Exit are the same coordinates
+            ValueError: Entry is higher than (self.width - 1) or (self.height - 1)
+            ValueError: Exit is higher than (self.width - 1) or (self.height - 1)
+            ValueError: Entry or Exit coordinates are placed inside the 42 Pattern
 
         """
         if self.entry == self.exit:
