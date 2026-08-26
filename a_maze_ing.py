@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+"""A_Maze_Ing main file."""
+
 import sys
 from platform import python_version
 
@@ -11,6 +14,16 @@ MAX_ARGS: int = 2
 
 
 def main() -> None:
+    """Start.
+
+    Handles parsing of the command line argument,
+    internal configuration and verification of the maze,
+    executes the maze generation and maze solving, as well
+    as the maze visual display.
+
+    Any possible erros that come from the config file
+    are handled here as well.
+    """
     if len(sys.argv) != MAX_ARGS:
         sys.stderr.write(f"Usage: python{python_version()} <{sys.argv[0]}>\n")
         return

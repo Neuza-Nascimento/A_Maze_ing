@@ -1,3 +1,5 @@
+"""Maze Visualizer."""
+
 import random
 
 from lib.mlx import Mlx
@@ -7,7 +9,7 @@ from .maze_generator import MazeGenerator
 
 
 class MazeVisualizer:
-    """Display visual representation of the generated maze by the mazeGenerator Class"""
+    """Display visual representation of the generated maze by the mazeGenerator Class."""
 
     def __init__(self, generator: MazeGenerator) -> None:
         self.gen: MazeGenerator = generator

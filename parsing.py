@@ -206,27 +206,6 @@ def check_algo(algo: str) -> str:
     raise ValueError(msg)
 
 
-def check_display(display: str) -> str:
-    """Validate the selected maze display mode.
-
-    Args:
-        display: Display mode read from the configuration file.
-
-    Returns:
-        The validated display mode.
-    """
-    for c in display:
-        if c.isspace() or c.isnumeric() or c.isdecimal() or c in {"-", "+"}:
-            display_error: str = f"Invalid DISPLAY, got: {display}"
-            raise ValueError(display_error)
-
-    if display == "mlx":
-        return display
-
-    msg: str = f"DISPLAY option not supported ({display})"
-    raise ValueError(msg)
-
-
 checker: dict[str, Callable[[str], Any]] = {
     "WIDTH": check_width,
     "HEIGHT": check_height,
@@ -236,7 +215,6 @@ checker: dict[str, Callable[[str], Any]] = {
     "PERFECT": check_perfect,
     "SEED": check_seed,
     "ALGORITHM": check_algo,
-    "DISPLAY": check_display,
 }
 
 
