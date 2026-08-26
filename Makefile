@@ -37,6 +37,6 @@ clean:
 	rm -rf $(addprefix $(SUBDIR)/,$(CACHE))
 
 fclean: clean
-	rm -rf .venv dist maze.txt
+	rm -rf .venv maze.txt
 
 .PHONY: all install run build debug lint lint-strict clean fclean
