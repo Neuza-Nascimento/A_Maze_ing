@@ -21,8 +21,8 @@ class MazeConfig(BaseModel):
     Holds all the key=value pairs found in the config file.
     """
 
-    width: int = Field(gt=0)
-    height: int = Field(gt=0)
+    width: int = Field(gt=5)
+    height: int = Field(gt=5)
     entry: tuple[int, int]
     exit: tuple[int, int]
     output_file: str
@@ -43,8 +43,8 @@ class MazeConfig(BaseModel):
 
         Raises:
             ValueError: Entry and Exit are the same coordinates
-            ValueError: Entry is higher than (self.width - 1) or (self.height - 1)
-            ValueError: Exit is higher than (self.width - 1) or (self.height - 1)
+            ValueError: Entry is higher than (self.width) or (self.height)
+            ValueError: Exit is higher than (self.width) or (self.height)
             ValueError: Entry or Exit coordinates are placed inside the 42 Pattern
 
         """
@@ -52,11 +52,11 @@ class MazeConfig(BaseModel):
             equal_points: str = "EXIT and ENTRY must not have equal points!"
             raise ValueError(equal_points)
         sx, sy = self.entry
-        if sx >= self.width - 1 or sy >= self.height - 1:
+        if sx >= self.width or sy >= self.height:
             enrr: str = f"Entry (X={sx},Y={sy}) out of bounds!"
             raise ValueError(enrr)
         ex, ey = self.exit
-        if ex >= self.width - 1 or ey >= self.height - 1:
+        if ex >= self.width or ey >= self.height:
             exrr: str = f"Exit (X={ex},Y={ey}) out of bounds!"
             raise ValueError(exrr)
 
