@@ -48,14 +48,8 @@ class MazeGenerator:
         inserted into the grid.
         """
         n: int = MagicValues.CLOSED.value
-        for y in range(self._height):
-            row: list[int] = []
-            for x in range(self._width):
-                if self.config.perfect and (
-                    y in {0, self._height - 1} or x in {0, self._width - 1}
-                ):
-                    self._blocked.add((x, y))
-                row.append(n)
+        for _ in range(self._height):
+            row: list[int] = [n for _ in range(self._width)]
             self._grid.append(row)
         self._42_pattern()
 
