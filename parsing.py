@@ -30,7 +30,7 @@ def check_width(width: str) -> int:
 
     Raises:
         ValueError: If width is not a integer
-        ValueError: If width is smaller or equal than 0
+        ValueError: If width is smaller or equal to 0
 
     """
     try:
@@ -40,7 +40,7 @@ def check_width(width: str) -> int:
         raise ValueError(err) from e
 
     if w <= 0:
-        zero: str = "WIDTH must be greater than 0"
+        zero: str = "WIDTH must be greater to 0"
         raise ValueError(zero)
 
     return w
@@ -57,7 +57,7 @@ def check_height(height: str) -> int:
 
     Raises:
         ValueError: If height is not a integer
-        ValueError: If height is smaller or equal than 0
+        ValueError: If height is smaller or equal to 0
 
     """
     try:
@@ -67,7 +67,7 @@ def check_height(height: str) -> int:
         raise ValueError(err) from e
 
     if h <= 0:
-        zero: str = "HEIGHT must be greater than 0"
+        zero: str = "HEIGHT must be greater to 0"
         raise ValueError(zero)
 
     return h
@@ -202,7 +202,7 @@ def check_seed(seed: str) -> int:
 
     Raises:
         ValueError: If seed is not a integer
-        ValueError: If seed is smaller than 0
+        ValueError: If seed is smaller or equal to 0
 
     """
     try:

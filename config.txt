@@ -13,4 +13,4 @@ PERFECT=True
 # Algorithm
 ALGORITHM=prim
 # Seed Generation
-Seed=42
+Seed=0
