@@ -12,7 +12,5 @@ OUTPUT_FILE=maze.txt
 PERFECT=False
 # Algorithm
 ALGORITHM=prim
-# Display option
-DISPLAY=mlx
 # Seed Generation
 Seed=42

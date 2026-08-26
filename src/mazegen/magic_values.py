@@ -1,7 +1,21 @@
+"""Magic Values Module.
+
+Each constansts here is created so that
+no actual magical value is placed on code
+making everything more clean and easier
+to track back if something goes wrong.
+"""
+
 from enum import Enum
 
 
 class MagicValues(Enum):
+    """Magical Values.
+
+    Each value is used to signify what wall is open,
+    what is closed, and what is facing what direction.
+    """
+
     OPEN = 0b0000
     NORTH = 0b0001
     EAST = 0b0010
@@ -11,6 +25,11 @@ class MagicValues(Enum):
 
 
 class Key(Enum):
+    """Keyboard keycode.
+
+    Each Enum is a keyboard key in decimal for the visualizer to track,
+    """
+
     ONE = 49
     TWO = 50
     THR = 51
@@ -25,7 +44,6 @@ DIRECTIONS: dict[MagicValues, tuple[int, int]] = {
     MagicValues.SOUTH: (0, 1),
     MagicValues.WEST: (-1, 0),
 }
-
 
 DIR_LETTER: dict[MagicValues, str] = {
     MagicValues.NORTH: "N",
