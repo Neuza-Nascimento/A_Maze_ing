@@ -3,13 +3,13 @@ WIDTH=15
 # Y axis
 HEIGHT=15
 # Entry Point
-ENTRY=1,1
+ENTRY=0,0
 # Exit Point
 EXIT=13,13
 # File to output solved maze
 OUTPUT_FILE=maze.txt
 # If maze must be a perfect
-PERFECT=False
+PERFECT=True
 # Algorithm
 ALGORITHM=prim
 # Seed Generation
