@@ -56,6 +56,11 @@ exclude = [
     "lib/"
 ]
 
+[[tool.mypy.overrides]]
+module = "lib.mlx"
+follow_imports = "skip"
+ignore_missing_imports = true
+
 [tool.flake8]
 max-line-length = 100
 extend-exclude = [
@@ -86,7 +91,8 @@ extend-exclude = [
     ".ruff_cache",
     "build",
     "dist",
-    "lib"
+    "lib",
+    "maze_analyzer.py"
 ]
 show-fixes = true
 output-format = "grouped"
@@ -109,8 +115,6 @@ ignore = [
     "T20",
     "RUF100",
     "RUF201",
-    "D",
-    "DOC",
     "CPY",
     "COM812",
     "S311"
@@ -120,7 +124,7 @@ fixable = ["ALL"]
 unfixable = []
 
 [tool.ruff.lint.mccabe]
-max-complexity = 12
+max-complexity = 20
 
 [tool.ty.src]
 exclude=[
@@ -131,7 +135,8 @@ exclude=[
     ".ruff_cache",
     "build",
     "dist",
-    "lib"
+    "lib",
+    "maze_analyzer.py"
 ]
 
 [tool.ty.analysis]

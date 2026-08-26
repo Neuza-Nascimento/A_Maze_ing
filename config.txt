@@ -1,18 +1,16 @@
 # X axis
-WIDTH=25
+WIDTH=15
 # Y axis
-HEIGHT=25
+HEIGHT=15
 # Entry Point
-ENTRY=23,23
+ENTRY=1,1
 # Exit Point
-EXIT=1,1
+EXIT=13,13
 # File to output solved maze
 OUTPUT_FILE=maze.txt
 # If maze must be a perfect
-PERFECT=True
+PERFECT=False
 # Algorithm
-ALGORITHM=dfs
-# Display option
-DISPLAY=mlx
+ALGORITHM=prim
 # Seed Generation
-SEED=42
+Seed=42

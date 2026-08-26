@@ -15,7 +15,6 @@ class MazeConfig(BaseModel):
     perfect: bool
     seed: int | None = Field(default_factory=lambda: secrets.randbits(32))
     algorithm: str | None = Field(default="dfs")
-    display: str | None = Field(default="mlx")
 
     @model_validator(mode="after")
     def validate_config(self) -> Self:

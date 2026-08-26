@@ -33,10 +33,10 @@ lint-strict:
 	$(RUN) mypy . --exclude=lib --strict
 
 clean:
-	rm -rf $(CACHE) maze.txt
+	rm -rf $(CACHE)
 	rm -rf $(addprefix $(SUBDIR)/,$(CACHE))
 
 fclean: clean
-	rm -rf .venv dist
+	rm -rf .venv dist maze.txt
 
 .PHONY: all install run build debug lint lint-strict clean fclean
