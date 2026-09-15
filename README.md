@@ -2,6 +2,12 @@
 
 # A-Maze-Ing: This is the way
 
+<div align="center">
+   
+![Maze](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ2Zhdnp1eTlleWs0OW42dG03djk1d3lrcXJ5cTQ2NzcxbjR2NDhhbyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/S3Vj415Ze66VtPFKRM/giphy.gif)
+
+</div>
+
 ## Table of Contents
 
 1. [Introduction](#introduction)
